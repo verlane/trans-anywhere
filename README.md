@@ -1,9 +1,10 @@
 TransAnywhere by Song
 =====================
 Translates, Suggests and completes words as you type! Translate faster and more efficiently anywhere.
+
 TransAnywhere uses Naver Eng/Kor Dictionary, Daum Eng/Kor Dictionary, Daum Jap/Kor Dictionary, Google Translation, Papago Translation.
 
-Some anitvirus recognize TransAnywhere as a virus, but there is no virus. Add TransAnywhere to the exclusions.
+Some antivirus recognizes TransAnywhere as a virus, but there is no virus. Add TransAnywhere to the exclusions.
 
 ![Screenshot](Screenshot.png)
 
@@ -18,11 +19,11 @@ Using
 4. Start typing on TransAnywhere. After the first few characters, a suggestion box will appear.
 5. Use the `Up` and `Down` arrow keys to select an entry if the currently selected one is not the desired word.
 6. Press `Tab` to trigger the completion with the currently selected word.
-7. Alternatively, press one of `1`, `2`, ..., `9`, `0` to trigger completion with the 1st, 2nd, ..., 9th, and 10th word, repectively.
+7. Alternatively, press one of `1`, `2`, ..., `9`, `0` to trigger completion with the 1st, 2nd, ..., 9th, and 10th word, respectively.
 
 ### Translation
 
-1. `Alt+W` to display TransAnywhere, `Ctrl+Enter` to start new line.
+1. `Alt+W` to display TransAnywhere, `Ctrl+Enter` to start a new line.
 2. `Alt+W` long press to copy the text you selected and translate.
 3. You can use Papago instead of Google Translation for Eng/Kor with Papago Client Id and Secret.
 
@@ -37,16 +38,12 @@ The dialog also allows you to edit the wordlist by adding or removing words. All
 
 The wordlist is contained in `WordList.txt`. Each line represents a word. The list can be edited with a text editor, but ensure the editor supports larger files before doing so! Some may crash or hang upon editing such files.
 
-Settings are stored in `Settings.ini` in the program directory. This contains a few more settings not accessible in the settings dialog, mainly the key settings.
-
-Key settings are URL encoded lists of key names such as `Space` and `d` where each entry is separated by a newline (the URL encoded version of a newline is `%0A`). They can be edited to change the keys accepted by the program.
-
 ### Translation
 
-You should set `Your Languages` you are familiar in order and enjoy with AHK.
+You should set `Your Languages` you are familiar with in order and enjoy with AHK.
 
 
-Licence
+License
 -------
 
 This program uses [Autocomplete by Uberi](https://github.com/Uberi/Autocomplete), [IME.ahk](https://w.atwiki.jp/eamat/pages/17.html), [AutoHotkey-JSON](https://github.com/cocobelgica/AutoHotkey-JSON)
