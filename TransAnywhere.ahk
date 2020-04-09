@@ -84,10 +84,12 @@ Gui FindWordForm:Font, s10, Meiryo UI
 Gui FindWordForm:Font
 
 Gui FindWordForm:Font, s18 Meiryo UI
-  Gui FindWordForm:Add, Button, hwndhTranslateBtn gTranslateBtn x249 y8 w40 h40 Default, 🌏
+  Gui FindWordForm:Add, Button, hwndhTranslateBtn gTranslateBtn x209 y8 w40 h40 Default, 🌏
   Tooltips[hTranslateBtn] := "Translate (Enter)"
-  Gui FindWordForm:Add, Button, hwndhSwitchBtn gSwitchBtn x289 y8 w40 h40, 🔁
+  Gui FindWordForm:Add, Button, hwndhSwitchBtn gSwitchBtn x249 y8 w40 h40, 🔁
   Tooltips[hSwitchBtn] := "Switch (Alt+Q)"
+  Gui FindWordForm:Add, Button, hwndhGoogleBtn gGoogleBtn x289 y8 w40 h40, 🔍
+  Tooltips[hGoogleBtn] := "Google (Alt+G)"
   Gui FindWordForm:Add, Button, hwndhOpenWebSrcBtn gOpenWebSrcBtn x329 y8 w40 h40, 📖
   Tooltips[hOpenWebSrcBtn] := "Open (Shift+Enter)"
   Gui FindWordForm:Add, Button, hwndhListenSrcBtn gListenSrcBtn x369 y8 w40 h40, 🔉
@@ -311,6 +313,12 @@ TranslateBtn:
   Gui, Suggestions:Hide
 Return
 
+GoogleBtn:
+  Gui FindWordForm:Submit, NoHide
+  GuiControlGet, SrcEditText
+  Run % "https://www.google.com/search?q=" . StrReplace(SrcEditText, "`n", " ")
+Return
+
 CloseAppWindow:
   ENGLISH_DIC_APP.CloseAppWindow()
   JAPANESE_DIC_APP.CloseAppWindow()
@@ -476,6 +484,9 @@ Return
 Return
 !q::
   Gosub, SwitchBtn
+Return
+!g::
+  Gosub, GoogleBtn
 Return
 !e::
   Gosub, ListenSrcBtn
