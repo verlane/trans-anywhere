@@ -3,13 +3,14 @@
 #Warn LocalSameAsGlobal, Off
 #SingleInstance force
 #MaxThreadsBuffer On
+#UseHook On
 
 SetBatchLines, -1
 
 Menu, Tray, Icon, %A_ScriptDir%\TrayIcon.ico
 
 global SettingsFile := A_ScriptDir . "\Settings.ini" ;path of the settings file
-global WINDOW_TITLE := "TransAnywhere by Song v200405"
+global WINDOW_TITLE := "TransAnywhere v20200612"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -32,6 +33,7 @@ global ThirdDicWindowMacro := "{Esc}iii{Sleep 10}^a^v{Enter}"
 global ThirdDicWindowURL := "https://small.dic.daum.net/search.do?dic=jp&q=[KEYWORD]"
 
 global MainWindowTransparent := 200
+global RunAsHiddenWindow := False
 
 IniRead, SourceLanguage, %SettingsFile%, Settings, SourceLanguage, %SourceLanguage%
 IniRead, TargetLanguage, %SettingsFile%, Settings, TargetLanguage, %TargetLanguage%
@@ -59,6 +61,7 @@ IniRead, ThirdDicWindowMacro, %SettingsFile%, Settings, ThirdDicWindowMacro, %Th
 IniRead, ThirdDicWindowURL, %SettingsFile%, Settings, ThirdDicWindowURL, %ThirdDicWindowURL%
 
 IniRead, MainWindowTransparent, %SettingsFile%, Settings, MainWindowTransparent, %MainWindowTransparent%
+IniRead, RunAsHiddenWindow, %SettingsFile%, Settings, RunAsHiddenWindow, %RunAsHiddenWindow%
 
 global PAPAGO_APP := new OpenChromeAsApp(FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL)
 global ENGLISH_DIC_APP := new OpenChromeAsApp(SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL)
@@ -112,11 +115,13 @@ IniRead, positionX, %SettingsFile%, Position, X
 IniRead, positionY, %SettingsFile%, Position, Y
 CONFIG.tmpX := positionX
 CONFIG.tmpY := positionY
-ShowFindWordFormGui(positionX, positionY)
+if (!RunAsHiddenWindow) {
+  ShowFindWordFormGui(positionX, positionY)
+}
 
 ; }
 
-#Include %A_ScriptDir%\Src\AutoComplete.ahk
+#Include %A_ScriptDir%\Lib\AutoComplete.ahk
 
 FindWordFormGuiEscape:
 FindWordFormGuiClose:
@@ -446,6 +451,35 @@ ListenSentence(keyword) {
   }
 }
 
+!d::
+  KeyWait d, T0.3
+  if (ErrorLevel) { ; by long press
+    Clipboard := ""
+    Send, ^x
+    ClipWait, 3
+    if (!ErrorLevel) {
+      text := ""
+      keyword := Clipboard
+      replacedKeyword := StrReplace(Clipboard, " `n", "`n")
+      replacedKeyword := StrReplace(replacedKeyword, "`r", "")
+      wordArray := StrSplit(replacedKeyword, "`n")
+      for index, word in wordArray ; Enumeration is the recommended approach in most cases.
+      {
+        if (word != "" && word != "`n") {
+					text := text word "`t" GetDaumTranslation(word)
+					if (wordArray.MaxIndex() != index) {
+						text := text . "`n"
+					}
+        }
+      }
+      Clipboard := text
+      Send ^v
+    }
+  } else {
+    Send !d
+  }
+  KeyWait %A_ThisHotkey%
+Return
 !w::
   KeyWait w, T0.3
   if (ErrorLevel) { ; by long press
@@ -471,6 +505,7 @@ ListenSentence(keyword) {
     }
     CONFIG.tickCount := A_TickCount
   }
+  KeyWait %A_ThisHotkey%
 Return
 ; !f::Reload
 
