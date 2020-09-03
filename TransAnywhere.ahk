@@ -408,9 +408,10 @@ OpenWeb(keyword, language="Auto") {
     sl := GOOGLE_LANGUAGES[language]
   }
 
+  ; TODO to change variable names
   isKorean := sl == GOOGLE_LANGUAGES[FirstLanguage]
   isEnglish := sl == GOOGLE_LANGUAGES[SecondLanguage]
-  isJapanese := GOOGLE_LANGUAGES[ThirdLanguage]
+  isJapanese := sl == GOOGLE_LANGUAGES[ThirdLanguage]
   isSentence := IsSentence(keyword)
   if (isSentence) {
     OpenPapago(keyword)
@@ -451,8 +452,8 @@ ListenSentence(keyword) {
   }
 }
 
-!d::
-  KeyWait d, T0.3
+!s::
+  KeyWait s, T0.3
   if (ErrorLevel) { ; by long press
     Clipboard := ""
     Send, ^x
@@ -476,7 +477,7 @@ ListenSentence(keyword) {
       Send ^v
     }
   } else {
-    Send !d
+    Send !s
   }
   KeyWait %A_ThisHotkey%
 Return
