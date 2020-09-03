@@ -10,7 +10,7 @@ SetBatchLines, -1
 Menu, Tray, Icon, %A_ScriptDir%\TrayIcon.ico
 
 global SettingsFile := A_ScriptDir . "\Settings.ini" ;path of the settings file
-global WINDOW_TITLE := "TransAnywhere v20200612"
+global WINDOW_TITLE := "TransAnywhere v20200903"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
