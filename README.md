@@ -2,7 +2,7 @@ TransAnywhere by Song
 =====================
 Translates, Suggests and completes words as you type! Translate faster and more efficiently anywhere.
 
-TransAnywhere uses Naver Eng/Kor Dictionary, Daum Eng/Kor Dictionary, Daum Jap/Kor Dictionary, Google Translation, Papago Translation.
+TransAnywhere uses Naver Eng/Kor Dictionary, Daum Eng/Kor Dictionary, Daum Jap/Kor Dictionary, Google Translation, Papago Translation. (네이버 영한/한영 사전, 다음 영한 사전, 다음 일한 사전)
 
 Some antivirus recognizes TransAnywhere as a virus, but there is no virus. Add TransAnywhere to the exclusions.
 
