@@ -10,7 +10,7 @@ SetBatchLines, -1
 Menu, Tray, Icon, %A_ScriptDir%\TrayIcon.ico
 
 global SettingsFile := A_ScriptDir . "\Settings.ini" ;path of the settings file
-global WINDOW_TITLE := "TransAnywhere v20200903"
+global WINDOW_TITLE := "TransAnywhere v20200913"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -190,6 +190,7 @@ Return
 
 TranslateBtn:
   pressShift := GetKeyState("Shift", "P") ; the value is 1 at pressed
+  pressLCtrl := GetKeyState("LCtrl", "P") ; the value is 1 at pressed
   Gui FindWordForm:Submit, NoHide
   GuiControl, FindWordForm:Focus, SrcEditText
   keyword := Trim(SrcEditText)
@@ -206,7 +207,7 @@ TranslateBtn:
     Return
   }
 
-  if (pressShift == 1) {
+  if (pressShift == 1 && pressLCtrl != 1) {
     OpenWeb(keyword, SrcLangComb)
     Gui, Suggestions:Hide
     Return
@@ -264,7 +265,9 @@ TranslateBtn:
   }
 
   tl := GOOGLE_LANGUAGES[TargetLangComb]
-  if (tl == "Auto" || tl == "") {
+  if (pressShift == 1 && pressLCtrl == 1) { ; shift && lctrl
+    tl := GOOGLE_LANGUAGES[ThirdLanguage]
+  } else if (tl == "Auto" || tl == "") {
     tl := GOOGLE_LANGUAGES[FirstLanguage]
     if (sl == GOOGLE_LANGUAGES[FirstLanguage]) {
       tl := GOOGLE_LANGUAGES[SecondLanguage]
