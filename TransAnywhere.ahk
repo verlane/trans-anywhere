@@ -79,34 +79,34 @@ Gui FindWordForm:+hWndhMainWnd +Owner -MaximizeBox -MinimizeBox
 Gui FindWordForm:Color, White
 Gui FindWordForm:Font, s10, Meiryo UI
   srcComboxText := GetComboboxText(GOOGLE_LANGUAGES, SourceLanguage, "Auto||")
-  Gui FindWordForm:Add, DDL, vSrcLangComb x8 y20 w120, %srcComboxText%
-  Gui FindWordForm:Add, Edit, vSrcEditText x8 y48 w440 h110 +Multi -WantReturn
+  Gui FindWordForm:Add, DDL, vSrcLangComb x4 y4 w120, %srcComboxText%
+  Gui FindWordForm:Add, Edit, vSrcEditText x4 y32 w412 h90 +Multi -WantReturn
   targetComboxText := GetComboboxText(GOOGLE_LANGUAGES, TargetLanguage, "Auto||")
-  Gui FindWordForm:Add, DDL, vTargetLangComb x8 y192 w120, %targetComboxText%
-  Gui FindWordForm:Add, Edit, vTargetEditText x8 y220 w440 h310 +ReadOnly +Multi
+  Gui FindWordForm:Add, DDL, vTargetLangComb x4 y132 w120, %targetComboxText%
+  Gui FindWordForm:Add, Edit, vTargetEditText x4 y160 w412 h310 +ReadOnly +Multi
 Gui FindWordForm:Font
 
-Gui FindWordForm:Font, s18 Meiryo UI
-  Gui FindWordForm:Add, Button, hwndhTranslateBtn gTranslateBtn x209 y8 w40 h40 Default, 🌏
+Gui FindWordForm:Font, s14 Meiryo UI
+  Gui FindWordForm:Add, Button, hwndhTranslateBtn gTranslateBtn x236 y0 w30 h30 Default, 🌏
   Tooltips[hTranslateBtn] := "Translate (Enter)"
-  Gui FindWordForm:Add, Button, hwndhSwitchBtn gSwitchBtn x249 y8 w40 h40, 🔁
+  Gui FindWordForm:Add, Button, hwndhSwitchBtn gSwitchBtn x266 y0 w30 h30, 🔁
   Tooltips[hSwitchBtn] := "Switch (Alt+Q)"
-  Gui FindWordForm:Add, Button, hwndhGoogleBtn gGoogleBtn x289 y8 w40 h40, 🔍
+  Gui FindWordForm:Add, Button, hwndhGoogleBtn gGoogleBtn x296 y0 w30 h30, 🔍
   Tooltips[hGoogleBtn] := "Google (Alt+G)"
-  Gui FindWordForm:Add, Button, hwndhOpenWebSrcBtn gOpenWebSrcBtn x329 y8 w40 h40, 📖
+  Gui FindWordForm:Add, Button, hwndhOpenWebSrcBtn gOpenWebSrcBtn x326 y0 w30 h30, 📖
   Tooltips[hOpenWebSrcBtn] := "Open (Shift+Enter)"
-  Gui FindWordForm:Add, Button, hwndhListenSrcBtn gListenSrcBtn x369 y8 w40 h40, 🔉
+  Gui FindWordForm:Add, Button, hwndhListenSrcBtn gListenSrcBtn x356 y0 w30 h30, 🔉
   Tooltips[hListenSrcBtn] := "Listen (Alt+E)"
-  Gui FindWordForm:Add, Button, hwndhCopySrcBtn gCopySrcBtn x409 y8 w40 h40, 📋
+  Gui FindWordForm:Add, Button, hwndhCopySrcBtn gCopySrcBtn x386 y0 w30 h30, 📋
   Tooltips[hCopySrcBtn] := "Copy (Alt+Y)"
 
-  Gui FindWordForm:Add, Button, hwndhSettingBtn gSettingBtn x289 y180 w40 h40, ⚙️
+  Gui FindWordForm:Add, Button, hwndhSettingBtn gSettingBtn x296 y128 w30 h30, ⚙️
   Tooltips[hSettingBtn] := "Alt+W to display this form, Ctrl+Enter to start new line.`nAlt+W long press to copy selected text and translate.`nTab or Number key to enter the phrase for AutoComplete."
-  Gui FindWordForm:Add, Button, hwndhOpenWebTargetBtn gOpenWebTargetBtn x329 y180 w40 h40, 📖
+  Gui FindWordForm:Add, Button, hwndhOpenWebTargetBtn gOpenWebTargetBtn x326 y128 w30 h30, 📖
   Tooltips[hOpenWebTargetBtn] := "Open (Alt+A)"
-  Gui FindWordForm:Add, Button, hwndhListenTargetBtn gListenTargetBtn x369 y180 w40 h40, 🔉
+  Gui FindWordForm:Add, Button, hwndhListenTargetBtn gListenTargetBtn x356 y128 w30 h30, 🔉
   Tooltips[hListenTargetBtn] := "Listen (Alt+S)"
-  Gui FindWordForm:Add, Button, hwndhCopyTargetBtn gCopyTargetBtn x409 y180 w40 h40, 📋
+  Gui FindWordForm:Add, Button, hwndhCopyTargetBtn gCopyTargetBtn x386 y128 w30 h30, 📋
   Tooltips[hCopyTargetBtn] := "Copy (Alt+D)"
 Gui FindWordForm:Font
 
@@ -138,7 +138,7 @@ CopyTargetBtn:
   Gui FindWordForm:Submit, NoHide
   GuiControlGet, TargetEditText
   Clipboard := TargetEditText
-  MsgBox,,, Copied to clipboard, 1
+  MsgBox,,, Copied to clipboard, 0.5
 Return
 
 ListenTargetBtn:
@@ -157,7 +157,7 @@ CopySrcBtn:
   Gui FindWordForm:Submit, NoHide
   GuiControlGet, SrcEditText
   Clipboard := SrcEditText
-  MsgBox,,, Copied to clipboard, 1
+  MsgBox,,, Copied to clipboard, 0.5
 Return
 
 ListenSrcBtn:
@@ -222,7 +222,7 @@ TranslateBtn:
   isMatched := RegExMatch(keyword, "Oi)^\+ ?(.+)$", SubPat)
   word := SubPat.value(1)
   if (isMatched && isEnglish) {
-    FileAppend, %word%`r`n, %WordListHistoryFile%
+		FileAppendToHead(word, WordListHistoryFile)
     MsgBox Registered.
     Return
   }
@@ -243,8 +243,8 @@ TranslateBtn:
   if (isEnglish && !isSentence && StrLen(keyword) > 3) {
     FileRead, WordListExcluded, %WordListExcludedFile%
     FileRead, WordListHistoryReloaded, %WordListHistoryFile%
-    if (!RegExMatch(WordListHistoryReloaded, "i)" keyword) && RegExMatch(WordList, "i)" keyword)) {
-      FileAppend, %keyword%`r`n, %WordListHistoryFile%
+    if (RegExMatch(WordList, "i)" keyword)) {
+			FileAppendToHead(keyword, WordListHistoryFile)
     } else if (!RegExMatch(WordList, "i)" keyword) && !RegExMatch(WordListExcluded, "i)" keyword)) {
       ; pending 20200305222011
       ; MsgBox 0x1, , There is no word in the dictionary. Do you want to register it?, 10
@@ -373,8 +373,8 @@ GetTargetText(responseText) {
 }
 
 ShowFindWordFormGui(x=0, y=0) {
-  width := 456
-  height := 538
+  width := 420
+  height := 474
   if (x==0 || y==0 || x < 0 || y < 0 || x > (A_ScreenWidth - width) || y > (A_ScreenHeight - height)) {
     x := 0
     y := 0

@@ -500,10 +500,7 @@ SendWord(CurrentWord,NewWord,CorrectCase = False)
     ; 히스토리에 선택한 단어등록
     global WordListHistoryFile
     global WordListHistory
-    MatchListRecent := Suggest(NewWord,WordListHistory)
-    if (!MatchListRecent) {
-      FileAppend, %NewWord%`r`n, %WordListHistoryFile%
-    }
+		FileAppendToHead(NewWord, WordListHistoryFile)
 }
 
 TextWidth(String)

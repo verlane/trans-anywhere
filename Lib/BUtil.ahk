@@ -1,4 +1,11 @@
-﻿GetResponseText(url) {
+﻿; RANDOM FUNCTION
+Rand(a=0.0, b=1) {
+   IfEqual,a,,Random,,% r := b = 1 ? Rand(0,0xFFFFFFFF) : b
+   Else Random,r,a,b
+   Return r
+}
+
+GetResponseText(url) {
   req := ComObjCreate("Msxml2.XMLHTTP")
   req.open("GET", url, false)
   ; req.setRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3887.7 Safari/537.36")
@@ -262,6 +269,14 @@ IsSentence(text) {
   return StrSplit(text, " ").MaxIndex() > 1 || StrSplit(text, "`n").MaxIndex() > 1 || (IsJapanese(text) && StrLen(text) > 10)
 }
 
+ArraySlice(arr, a, b := "") {
+	local
+  b := b < 0 ? arr.MaxIndex() + b : b
+	return (ret := arr.clone()
+	, (b != "" && b < max := arr.maxindex()) ? 	ret.delete(b + 1, max) : ""
+	, ret.removeat(min := arr.minindex(), a - min) )
+}
+
 ArrayUniq(arr) {
   hash := {}, newArr := []
   for e, v in arr
@@ -295,4 +310,18 @@ ArrayJoins(arr, str) {
     }
   }
   return newStr
+}
+
+FileAppendToHead(word, filePath, removeDuplicatedWord=True) {
+	file := FileOpen(filePath, "r")
+	string := file.Read()
+	if (removeDuplicatedWord) {
+		string := RegExReplace(string, "i)(^|`r`n)" word "(`r`n|$)", "")
+	}
+	string := word "`r`n" . string
+	file.Close()
+
+	tmpFile := filePath "_tmp"
+	FileAppend, %string%, %tmpFile%
+	FileMove, %tmpFile%, %filePath%, True
 }
