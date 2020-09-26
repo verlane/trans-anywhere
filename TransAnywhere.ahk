@@ -243,7 +243,7 @@ TranslateBtn:
   if (isEnglish && !isSentence && StrLen(keyword) > 3) {
     FileRead, WordListExcluded, %WordListExcludedFile%
     FileRead, WordListHistoryReloaded, %WordListHistoryFile%
-    if (RegExMatch(WordList, "i)" keyword)) {
+    if (RegExMatch(WordList, "i)(^|[`r`n])" keyword "([`r`n]|$)")) {
 			FileAppendToHead(keyword, WordListHistoryFile)
     } else if (!RegExMatch(WordList, "i)" keyword) && !RegExMatch(WordListExcluded, "i)" keyword)) {
       ; pending 20200305222011
