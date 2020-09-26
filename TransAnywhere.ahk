@@ -266,7 +266,11 @@ TranslateBtn:
 
   tl := GOOGLE_LANGUAGES[TargetLangComb]
   if (pressShift == 1 && pressLCtrl == 1) { ; shift && lctrl
-    tl := GOOGLE_LANGUAGES[ThirdLanguage]
+    if (sl == GOOGLE_LANGUAGES[ThirdLanguage]) {
+      tl := GOOGLE_LANGUAGES[SecondLanguage]
+    } else {
+      tl := GOOGLE_LANGUAGES[ThirdLanguage]
+    }
   } else if (tl == "Auto" || tl == "") {
     tl := GOOGLE_LANGUAGES[FirstLanguage]
     if (sl == GOOGLE_LANGUAGES[FirstLanguage]) {
