@@ -323,17 +323,17 @@ TranslateBtn:
   textsWithStyle := []
   textArr := StrSplit(text, keyword)
   if (IsInHeader) {
-    textsWithStyle.Push([palette.rose, keyword])
+    textsWithStyle.Push([keyword, palette.rose, "bold"])
   }
   for i, v in textArr
   {
       if (i != 1 && i != textArr.MaxIndex()) {
-        textsWithStyle.Push([palette.rose, keyword])
+        textsWithStyle.Push([keyword, palette.rose, "bold"])
       }
       textsWithStyle.Push(v)
   }
   if (IsInfooter) {
-    textsWithStyle.Push([palette.rose, keyword])
+    textsWithStyle.Push([keyword, palette.rose, "bold"])
   }
   AppendRE(targetRE, textsWithStyle)
 
@@ -492,8 +492,9 @@ AppendRE(RE, textsWithStyle) {
 	for i, v in textsWithStyle
 	{
 		color := 1
+    effects := "\b0\i0"
 		if (IsObject(v)) {
-			rgb := v[1], v := v[2]
+      rgb := v[2], effect := v[3], v := v[1]
 			if (colors[rgb]) {
 				color := colors[rgb]
       } else {
@@ -501,8 +502,11 @@ AppendRE(RE, textsWithStyle) {
 				color := colors[rgb] := ++max_color
 				colortbl .= "\red" rgb>>16&0xFF "\green" rgb>>8&0xFF "\blue" rgb&0xFF ";"
 			}
+      if (effect) {
+        effects := "\b\i"
+      }
 		}
-		text .= "\cf" color " " RegExReplace(v, "[\\{}\r\n]", "\$0")
+		text .= effects "\cf" color " " RegExReplace(v, "[\\{}\r\n]", "\$0")
 	}
 	fonttbl := "{\fonttbl{\f0\fmodern\fcharset0 " font.Name ";}}"
 	rtf := "{\rtf{\colortbl;" colortbl "}" fonttbl "\fs" Round(font.Size)*2 " " text "\`n}"
