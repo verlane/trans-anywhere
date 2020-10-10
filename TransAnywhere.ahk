@@ -317,23 +317,23 @@ TranslateBtn:
     text := GetTargetText(GetGoogleTranslation(keyword, sl, tl))
   }
 
-  IsInHeader := RegExMatch(text, "i)^" . keyword)
-  IsInfooter := RegExMatch(text, "i)" . keyword . "$")
+  IsInHeader := RegExMatch(text, "^" . keyword)
+  IsInfooter := RegExMatch(text, keyword . "$")
   targetRE.SetText("")
   textsWithStyle := []
   textArr := StrSplit(text, keyword)
   if (IsInHeader) {
-    textsWithStyle.Push([keyword, palette.rose, "bold"])
+    textsWithStyle.Push([keyword, palette.rose, True])
   }
   for i, v in textArr
   {
-      if (i != 1 && i != textArr.MaxIndex()) {
-        textsWithStyle.Push([keyword, palette.rose, "bold"])
-      }
       textsWithStyle.Push(v)
+      if (i != textArr.MaxIndex()) {
+        textsWithStyle.Push([keyword, palette.rose, True])
+      }
   }
   if (IsInfooter) {
-    textsWithStyle.Push([keyword, palette.rose, "bold"])
+    textsWithStyle.Push([keyword, palette.rose, True])
   }
   AppendRE(targetRE, textsWithStyle)
 
