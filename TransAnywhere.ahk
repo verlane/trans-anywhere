@@ -83,7 +83,13 @@ Gui FindWordForm:Font, s10, Meiryo UI
   Gui FindWordForm:Add, Edit, vSrcEditText x4 y32 w412 h90 +Multi -WantReturn
   targetComboxText := GetComboboxText(GOOGLE_LANGUAGES, TargetLanguage, "Auto||")
   Gui FindWordForm:Add, DDL, vTargetLangComb x4 y132 w120, %targetComboxText%
-  Gui FindWordForm:Add, Edit, vTargetEditText x4 y160 w412 h310 +ReadOnly +Multi
+  ; Gui FindWordForm:Add, Edit, vTargetEditText x4 y160 w412 h310 +ReadOnly +Multi
+  targetRE := new RichEdit("FindWordForm", "x4 y160 w412 h310")
+  targetRE.SetBkgndColor(0xFFFFFF)
+  targetRE.SetOptions(["READONLY"], "Set")
+  targetRE.WordWrap(True)
+  targetRE.SetDefaultFont({"Name": "Meiryo UI", "Color": 0x000000, "Size": 10})
+  palette := {"rose": 0xEE3158, "red": 0xFF6188, "orange": 0xFC9867, "yellow": 0xFFD866, "green": 0xA9DC76, "blue": 0x78DCE8, "purple": 0xAB9DF2}
 Gui FindWordForm:Font
 
 Gui FindWordForm:Font, s14 Meiryo UI
@@ -135,22 +141,16 @@ SettingBtn:
 Return
 
 CopyTargetBtn:
-  Gui FindWordForm:Submit, NoHide
-  GuiControlGet, TargetEditText
-  Clipboard := TargetEditText
+  Clipboard := targetRE.getText()
   MsgBox,,, Copied to clipboard, 0.5
 Return
 
 ListenTargetBtn:
-  Gui FindWordForm:Submit, NoHide
-  GuiControlGet, TargetEditText
-  ListenSentence(TargetEditText)
+  ListenSentence(targetRE.getText())
 Return
 
 OpenWebTargetBtn:
-  Gui FindWordForm:Submit, NoHide
-  GuiControlGet, TargetEditText
-  OpenWeb(TargetEditText, TargetLangComb)
+  OpenWeb(targetRE.getText(), TargetLangComb)
 Return
 
 CopySrcBtn:
@@ -175,9 +175,9 @@ Return
 SwitchBtn:
   Gui FindWordForm:Submit, NoHide
   GuiControlGet, SrcEditText
-  GuiControlGet, TargetEditText
-  GuiControl, FindWordForm:Text, TargetEditText, %SrcEditText%
-  GuiControl, FindWordForm:Text, SrcEditText, %TargetEditText%
+  targetREText := targetRE.getText()
+  GuiControl, FindWordForm:Text, SrcEditText, %targetREText%
+  targetRE.setText(SrcEditText)
 
   GuiControlGet, SrcLangComb
   GuiControlGet, TargetLangComb
@@ -316,7 +316,28 @@ TranslateBtn:
   if (StrLen(text) == 0) {
     text := GetTargetText(GetGoogleTranslation(keyword, sl, tl))
   }
-  GuiControl, FindWordForm:Text, TargetEditText, %text%
+
+  IsInHeader := RegExMatch(text, "i)^" . keyword)
+  IsInfooter := RegExMatch(text, "i)" . keyword . "$")
+  targetRE.SetText("")
+  textsWithStyle := []
+  textArr := StrSplit(text, keyword)
+  if (IsInHeader) {
+    textsWithStyle.Push([palette.rose, keyword])
+  }
+  for i, v in textArr
+  {
+      if (i != 1 && i != textArr.MaxIndex()) {
+        textsWithStyle.Push([palette.rose, keyword])
+      }
+      textsWithStyle.Push(v)
+  }
+  if (IsInfooter) {
+    textsWithStyle.Push([palette.rose, keyword])
+  }
+  AppendRE(targetRE, textsWithStyle)
+
+  ; GuiControl, FindWordForm:Text, TargetEditText, %text%
 
   if (playWord) {
     ListenSentence(keyword)
@@ -459,6 +480,56 @@ ListenSentence(keyword) {
   }
 }
 
+AppendRE(RE, textsWithStyle) {
+	static WM_VSCROLL := 0x115, SB_BOTTOM := 7, CP_UTF8 := 65001
+	GuiControl, -Redraw, % RE.hWnd
+
+	; Generate an RTF document based on the given input
+	font := RE.GetFont(1)
+	colors := {rgb := font.Color: max_color := 1}
+ 	colortbl := "\red" rgb>>16&0xFF "\green" rgb>>8&0xFF "\blue" rgb&0xFF ";"
+  text := ""
+	for i, v in textsWithStyle
+	{
+		color := 1
+		if (IsObject(v)) {
+			rgb := v[1], v := v[2]
+			if (colors[rgb]) {
+				color := colors[rgb]
+      } else {
+				; Add a new color table entry
+				color := colors[rgb] := ++max_color
+				colortbl .= "\red" rgb>>16&0xFF "\green" rgb>>8&0xFF "\blue" rgb&0xFF ";"
+			}
+		}
+		text .= "\cf" color " " RegExReplace(v, "[\\{}\r\n]", "\$0")
+	}
+	fonttbl := "{\fonttbl{\f0\fmodern\fcharset0 " font.Name ";}}"
+	rtf := "{\rtf{\colortbl;" colortbl "}" fonttbl "\fs" Round(font.Size)*2 " " text "\`n}"
+
+	; Move cursor to end of document and paste
+	sel := RE.GetSel()
+	len := RE.GetTextLen()
+	RE.SetSel(len, len)
+
+	; Replace selection with rtf
+  VarSetCapacity(bRTF, StrPut(rtf, "CP" CP_UTF8))
+  StrPut(rtf, &bRTF, "CP" CP_UTF8)
+  VarSetCapacity(SETTEXTEX, 8, 0)
+  NumPut(2      , SETTEXTEX, 0, "UInt") ; DWORD flags
+  NumPut(CP_UTF8, SETTEXTEX, 4, "UInt") ; UINT  codepage
+  SendMessage, 0x461, &SETTEXTEX, &bRTF,, % "ahk_id " . RE.hWnd
+
+	; Restore selection or scroll appropriately
+	; if (Sel.S == Len) {
+		; GuiControl, +Redraw, % RE.hWnd
+		; SendMessage, WM_VSCROLL, SB_BOTTOM, 0,, % "ahk_id" RE.hWnd
+	; } else {
+		RE.SetSel(Sel.S, Sel.E)
+		GuiControl, +Redraw, % RE.hWnd
+	; }
+}
+
 !s::
   KeyWait s, T0.3
   if (ErrorLevel) { ; by long press
@@ -556,3 +627,4 @@ Return
 #Include %A_ScriptDir%\Lib\Papago.ahk
 #Include %A_ScriptDir%\Lib\DaumDic.ahk
 #Include %A_ScriptDir%\Lib\IME.ahk
+#Include %A_ScriptDir%\Lib\Class_RichEdit.ahk
