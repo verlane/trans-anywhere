@@ -516,6 +516,10 @@ Class RichEdit {
       Return {S: NumGet(CR, 0, "Int"), E: NumGet(CR, 4, "Int")}
    }
    ; -------------------------------------------------------------------------------------------------------------------
+   GetTextRN() { ; Gets the whole content of the control as plain text.
+	 	Return RegExReplace(This.GetText(), "`r", "`r`n")
+	 }
+   ; -------------------------------------------------------------------------------------------------------------------
    GetText() { ; Gets the whole content of the control as plain text.
       ; EM_GETTEXTEX = 0x045E
       Text := ""

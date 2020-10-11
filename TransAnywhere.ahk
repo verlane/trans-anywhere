@@ -10,7 +10,7 @@ SetBatchLines, -1
 Menu, Tray, Icon, %A_ScriptDir%\TrayIcon.ico
 
 global SettingsFile := A_ScriptDir . "\Settings.ini" ;path of the settings file
-global WINDOW_TITLE := "TransAnywhere v20200913"
+global WINDOW_TITLE := "TransAnywhere v20201011"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -86,7 +86,7 @@ Gui FindWordForm:Font, s10, Meiryo UI
   ; Gui FindWordForm:Add, Edit, vTargetEditText x4 y160 w412 h310 +ReadOnly +Multi
   targetRE := new RichEdit("FindWordForm", "x4 y160 w412 h310")
   targetRE.SetBkgndColor(0xFFFFFF)
-  targetRE.SetOptions(["READONLY"], "Set")
+  ; targetRE.SetOptions(["READONLY"], "Set") ; to avoid a bug not scrolling
   targetRE.WordWrap(True)
   targetRE.SetDefaultFont({"Name": "Meiryo UI", "Color": 0x000000, "Size": 10})
   palette := {"rose": 0xEE3158, "red": 0xFF6188, "orange": 0xFC9867, "yellow": 0xFFD866, "green": 0xA9DC76, "blue": 0x78DCE8, "purple": 0xAB9DF2}
@@ -141,16 +141,16 @@ SettingBtn:
 Return
 
 CopyTargetBtn:
-  Clipboard := targetRE.getText()
+  Clipboard := targetRE.GetTextRN()
   MsgBox,,, Copied to clipboard, 0.5
 Return
 
 ListenTargetBtn:
-  ListenSentence(targetRE.getText())
+  ListenSentence(targetRE.GetTextRN())
 Return
 
 OpenWebTargetBtn:
-  OpenWeb(targetRE.getText(), TargetLangComb)
+  OpenWeb(targetRE.GetTextRN(), TargetLangComb)
 Return
 
 CopySrcBtn:
@@ -175,7 +175,7 @@ Return
 SwitchBtn:
   Gui FindWordForm:Submit, NoHide
   GuiControlGet, SrcEditText
-  targetREText := targetRE.getText()
+  targetREText := targetRE.GetTextRN()
   GuiControl, FindWordForm:Text, SrcEditText, %targetREText%
   targetRE.setText(SrcEditText)
 
@@ -316,6 +316,8 @@ TranslateBtn:
   if (StrLen(text) == 0) {
     text := GetTargetText(GetGoogleTranslation(keyword, sl, tl))
   }
+
+	; text := RegExReplace(text, "\r\n", "\r")
 
   IsInHeader := RegExMatch(text, "^" . keyword)
   IsInfooter := RegExMatch(text, keyword . "$")
@@ -506,7 +508,7 @@ AppendRE(RE, textsWithStyle) {
         effects := "\b\i"
       }
 		}
-		text .= effects "\cf" color " " RegExReplace(v, "[\\{}\r\n]", "\$0")
+		text .= effects "\cf" color " " RegExReplace(v, "(\r\n|[\\{}\r\n])", "\$0")
 	}
 	fonttbl := "{\fonttbl{\f0\fmodern\fcharset0 " font.Name ";}}"
 	rtf := "{\rtf{\colortbl;" colortbl "}" fonttbl "\fs" Round(font.Size)*2 " " text "\`n}"
