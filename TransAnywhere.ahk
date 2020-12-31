@@ -10,7 +10,7 @@ SetBatchLines, -1
 Menu, Tray, Icon, %A_ScriptDir%\TrayIcon.ico
 
 global SettingsFile := A_ScriptDir . "\Settings.ini" ;path of the settings file
-global WINDOW_TITLE := "TransAnywhere v20201011"
+global WINDOW_TITLE := "TransAnywhere v20201231"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -319,23 +319,25 @@ TranslateBtn:
 
 	; text := RegExReplace(text, "\r\n", "\r")
 
-  IsInHeader := RegExMatch(text, "^" . keyword)
-  IsInfooter := RegExMatch(text, keyword . "$")
+  lowerCaseKeyword := Format("{:L}", keyword)
+  IsInHeader := RegExMatch(text, "^" . lowerCaseKeyword)
+  IsInfooter := RegExMatch(text, lowerCaseKeyword . "$")
   targetRE.SetText("")
   textsWithStyle := []
-  textArr := StrSplit(text, keyword)
   if (IsInHeader) {
-    textsWithStyle.Push([keyword, palette.rose, True])
+    textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
+    text := RegExReplace(text, "^" . lowerCaseKeyword, "")
   }
+  textArr := StrSplit(text, lowerCaseKeyword)
   for i, v in textArr
   {
       textsWithStyle.Push(v)
       if (i != textArr.MaxIndex()) {
-        textsWithStyle.Push([keyword, palette.rose, True])
+        textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
       }
   }
   if (IsInfooter) {
-    textsWithStyle.Push([keyword, palette.rose, True])
+    textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
   }
   AppendRE(targetRE, textsWithStyle)
 

@@ -5,7 +5,7 @@
     this.sendURL := sendURL
   }
 
-  RunApp(keyword) {
+  RunApp(keyword="") {
     winTitleRegex := this.winTitleRegex
     sendCommand := this.sendCommand
 
@@ -13,7 +13,7 @@
     IfWinExist %winTitleRegex%
     {
       WinActivate %winTitleRegex%
-      WinWaitActive %winTitleRegex%
+      WinWaitActive %winTitleRegex%, , 3
       tmp := Clipboard
       Clipboard := keyword
       Send %sendCommand%

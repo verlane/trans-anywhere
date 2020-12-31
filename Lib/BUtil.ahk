@@ -258,7 +258,8 @@ IsKorean(text) {
 }
 
 IsJapanese(text) {
-  return RegExMatch(text, "[亜-熙ぁ-んァ-ヶ]+")
+  ; return RegExMatch(text, "[亜-熙ぁ-んァ-ヶ]+")
+  return RegExMatch(text, "[一-龯ぁ-んァ-ヶ]+")
 }
 
 IsEnglish(text) {
@@ -316,9 +317,10 @@ FileAppendToHead(word, filePath, removeDuplicatedWord=True) {
 	file := FileOpen(filePath, "r")
 	string := file.Read()
 	if (removeDuplicatedWord) {
-		string := RegExReplace(string, "i)(^|`r`n)" word "(`r`n|$)", "")
+    string := RegExReplace(string, "i)(`r`n)" . word . "(`r`n)", "`r`n") ; middle word
+    string := RegExReplace(string, "i)^" . word . "(`r`n)", "") ; top and bottom word
 	}
-	string := word "`r`n" . string
+	string := word . "`r`n" . string
 	file.Close()
 
 	tmpFile := filePath "_tmp"
@@ -343,4 +345,96 @@ CreateUUID() {
         if !(DllCall("rpcrt4.dll\UuidToString", "ptr", &puuid, "uint*", suuid))
             return StrGet(suuid), DllCall("rpcrt4.dll\RpcStringFree", "uint*", suuid)
     return ""
+}
+
+IsConnectedToWIFI(ssid="") {
+  mytempclip := ClipboardAll
+  Runwait %comspec% /c netsh wlan show interface | clip,,hide
+  mySSID := Trim(RegExReplace(Clipboard, "s).*?\R\s+SSID\s+:(\V+).*", "$1"))
+  lines := StrSplit(mySSID, "`n")
+  Clipboard := mytempclip
+  if (ssid) {
+    return mySSID == ssid
+  }
+  return lines.MaxIndex() == 1
+}
+
+RunIf(exec, processName="") {
+  commandArr := StrSplit(exec, "\")
+  if (processName == "") {
+    processName := commandArr[commandArr.MaxIndex()]
+  }
+  if (!ProcessExist(processName)) {
+    Run % exec
+  }
+}
+
+ProcessExist(Name) {
+  Process, Exist, %Name%
+  return Errorlevel
+}
+
+WinMoveG9(MntIdx = 0, MoveArea = 7, expandWidthPercent = 0, expandHeightPercent = 0, adjustment = false) {
+/*
+　MntIdx : 異動先となるモニタ。デフォルトは0（移動しない）。
+　MoveArea : 移動先となるグリッド（位置はテンキー参照）。デフォルトは7（左上）。
+*/
+  WinGet,WinId, ID, A
+  WinGetPos, WinX, WinY, WinW, WinH, ahk_id %WinId%
+  if MntIdx
+    SysGet, Mnt, MonitorWorkArea, %MntIdx%
+  else {
+    WinYC := WinH // 2 + WinY, WinXC := WinW // 2 + WinX
+    MntNum := 2 ; 有効なモニタ数（頻繁に変更するなら↓をアンコメント）
+    ;~ SysGet, MntNum, 80
+    Loop, %MntNum%
+    {
+      SysGet, Mnt, MonitorWorkArea, %A_Index%
+      if (MntTop < WinYC) && (WinYC < MntBottom) && (MntLeft < WinXC) && (WinXC < MntRight)
+        break
+    }
+  }
+
+  if (expandWidthPercent > 0) {
+    MoveWidth := (MntRight - MntLeft) * expandWidthPercent / 100
+  }
+  if (expandHeightPercent > 0) {
+    MoveHeight := (MntBottom - MntTop) * expandHeightPercent / 100
+  }
+  if (MoveWidth || MoveHeight) {
+    WinMove, ahk_id %WinId%, , , , %MoveWidth%, %MoveHeight%
+    WinGetPos, WinX, WinY, WinW, WinH, ahk_id %WinId%
+  }
+
+  if (7 == MoveArea || 4 == MoveArea || 1 == MoveArea)
+    MoveX := MntLeft
+  else if (8 == MoveArea || 5 == MoveArea || 2 == MoveArea)
+    MoveX := (MntRight - MntLeft - WinW) / 2 + MntLeft
+  else  ; if (9 == MoveArea || 6 == MoveArea || 3 == MoveArea)
+    MoveX := MntRight - WinW
+
+  if (7 == MoveArea || 8 == MoveArea || 9 == MoveArea)
+    MoveY := MntTop
+  else if (4 == MoveArea || 5 == MoveArea || 6 == MoveArea)
+    MoveY := (MntBottom - MntTop - WinH) / 2 + MntTop
+  else ; if (1 == MoveArea || 2 == MoveArea || 3 == MoveArea)
+    MoveY := MntBottom - WinH
+
+  WinMove, ahk_id %WinId%, , %MoveX%, %MoveY%
+  if (adjustment) {
+    WinGetPos, WinX, WinY, WinW, WinH, ahk_id %WinId%
+    newWinX := WinX - 8
+    newWinY := WinY - 8
+    newWinW := WinW + 16
+    newWinH := WinH + 16
+    WinMove, ahk_id %WinId%, , %newWinX%, %newWinY%, %newWinW%, %newWinH%
+  }
+}
+
+MsgBoxGetResult()
+{
+  Loop, Parse, % "Timeout,OK,Cancel,Yes,No,Abort,Ignore,Retry,Continue,TryAgain", % ","
+    IfMsgBox, % vResult := A_LoopField
+      break
+  Return vResult
 }
