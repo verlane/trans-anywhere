@@ -73,10 +73,10 @@ Gui, Settings:Submit
 WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow)
 
 ;write wordlist file
-File := FileOpen(WordListFile,"w")
-File.Seek(0)
-Length := File.Write(WordList)
-File.Length := Length
+; File := FileOpen(WordListFile,"w")
+; File.Seek(0)
+; Length := File.Write(WordList)
+; File.Length := Length
 ExitApp
 
 ExitScript:

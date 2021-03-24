@@ -152,7 +152,7 @@ GetNaverTranslationText(document, boxClassName) {
 GetGoogleTranslation(keyword, sl="auto", tl="ko") {
   keywordEncoded := URLEncode(keyword)
   req := ComObjCreate("Msxml2.XMLHTTP")
-  req.open("GET", "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=" . sl . "&tl=" . tl . "&q=" . keywordEncoded, false)
+  req.open("GET", "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=bd&dj=1&source=input" . "&sl=" . sl . "&tl=" . tl . "&q=" . keywordEncoded, false)
   req.send()
   return req.ResponseText
 }
