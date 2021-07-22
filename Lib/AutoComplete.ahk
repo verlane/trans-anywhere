@@ -70,7 +70,7 @@ Return
 
 ExitSub:
 Gui, Settings:Submit
-WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow)
+WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow, AutoHide)
 
 ;write wordlist file
 ; File := FileOpen(WordListFile,"w")
@@ -120,7 +120,8 @@ Gui, Add, Checkbox, x270 y320 w260 h24 Checked%UseDaumEnglishDictionary% vUseDau
 
 Gui, Add, Text, x10 y360 w180 h24, Main Window Transparent
 Gui, Add, Edit, x200 y360 w50 h24 vMainWindowTransparent, %MainWindowTransparent%
-Gui, Add, Checkbox, x270 y360 w260 h24 Checked%RunAsHiddenWindow% vRunAsHiddenWindow, Run As Hidden Window
+Gui, Add, Checkbox, x270 y360 w180 h24 Checked%RunAsHiddenWindow% vRunAsHiddenWindow, Run As Hidden Window
+Gui, Add, Checkbox, x460 y360 w100 h24 Checked%AutoHide% vAutoHide, Auto Hide
 
 Gui, Add, Text, x10 y400 w180 h24, Your Languages
 firstLangComboxText := GetComboboxText(GOOGLE_LANGUAGES, FirstLanguage)
@@ -181,7 +182,7 @@ SettingsGuiEscape:
 SettingsGuiClose:
 Gui, Settings:Default
 Gui, Submit
-WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow)
+WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow, AutoHide)
 Gui, Destroy
 Return
 
@@ -544,7 +545,7 @@ URLDecode(Encoded)
     Return, Encoded
 }
 
-WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow)
+WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientSecret, FirstLanguage, FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL, SecondLanguage, SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL, ThirdLanguage, ThirdDicWindowTitle, ThirdDicWindowMacro, ThirdDicWindowURL, PlayEnglishWordPronunciation, UseDaumEnglishDictionary, MainWindowTransparent, RunAsHiddenWindow, AutoHide)
 {
   IniWrite, % URLEncodeForAuto(MaxResults), %SettingsFile%, Settings, MaxResults
   IniWrite, % URLEncodeForAuto(ShowLength), %SettingsFile%, Settings, ShowLength
@@ -570,6 +571,7 @@ WriteSettings(MaxResults, ShowLength, CorrectCase, PapagoClientId, PapagoClientS
 
   IniWrite %MainWindowTransparent%, %SettingsFile%, Settings, MainWindowTransparent
   IniWrite %RunAsHiddenWindow%, %SettingsFile%, Settings, RunAsHiddenWindow
+  IniWrite %AutoHide%, %SettingsFile%, Settings, AutoHide
 
   PAPAGO_APP := new OpenChromeAsApp(FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL)
   ENGLISH_DIC_APP := new OpenChromeAsApp(SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL)

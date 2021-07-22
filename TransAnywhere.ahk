@@ -14,7 +14,7 @@ if (!FileExist(SettingsFile)) {
   global SettingsFile := A_ScriptDir . "\Settings-" . A_ComputerName . ".ini" ;path of the settings file
 }
 
-global WINDOW_TITLE := "TransAnywhere v20210319"
+global WINDOW_TITLE := "TransAnywhere v20210722"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -38,6 +38,8 @@ global ThirdDicWindowURL := "https://small.dic.daum.net/search.do?dic=jp&q=[KEYW
 
 global MainWindowTransparent := 200
 global RunAsHiddenWindow := False
+global AutoHide := False
+global AutoHideCount := 0
 
 IniRead, SourceLanguage, %SettingsFile%, Settings, SourceLanguage, %SourceLanguage%
 IniRead, TargetLanguage, %SettingsFile%, Settings, TargetLanguage, %TargetLanguage%
@@ -66,6 +68,7 @@ IniRead, ThirdDicWindowURL, %SettingsFile%, Settings, ThirdDicWindowURL, %ThirdD
 
 IniRead, MainWindowTransparent, %SettingsFile%, Settings, MainWindowTransparent, %MainWindowTransparent%
 IniRead, RunAsHiddenWindow, %SettingsFile%, Settings, RunAsHiddenWindow, %RunAsHiddenWindow%
+IniRead, AutoHide, %SettingsFile%, Settings, AutoHide, %AutoHide%
 
 global PAPAGO_APP := new OpenChromeAsApp(FirstDicWindowTitle, FirstDicWindowMacro, FirstDicWindowURL)
 global ENGLISH_DIC_APP := new OpenChromeAsApp(SecondDicWindowTitle, SecondDicWindowMacro, SecondDicWindowURL)
@@ -360,6 +363,19 @@ GoogleBtn:
   Run % "https://www.google.com/search?q=" . StrReplace(SrcEditText, "`n", " ")
 Return
 
+AutoHideTimer:
+	WinGetTitle thisWindowTitle, A
+	if (WINDOW_TITLE == thisWindowTitle) {
+    AutoHideCount := 0
+	} else {
+    AutoHideCount := AutoHideCount + 1
+    if (AutoHideCount > 10) {
+      HideGui()
+      SetTimer, AutoHideTimer, Off
+    }
+  }
+Return
+
 CloseAppWindow:
   ENGLISH_DIC_APP.CloseAppWindow()
   JAPANESE_DIC_APP.CloseAppWindow()
@@ -419,6 +435,11 @@ ShowFindWordFormGui(x=0, y=0) {
   MainWindowTransparent := MainWindowTransparent < 50 ? 50 : MainWindowTransparent
 
   WinSet Transparent, %MainWindowTransparent%, %WINDOW_TITLE%
+
+	if (AutoHide) {
+		waitingTime := 1 * 1000 ; seconds
+		SetTimer, AutoHideTimer, %waitingTime%
+	}
 }
 
 HideGui() {
@@ -458,7 +479,7 @@ OpenWeb(keyword, language="Auto") {
   } else {
     OpenPapago(keyword)
   }
-  waitingTime := 1000 * 60 * 5
+  waitingTime := 1000 * 60 * 5 ; minutes
   SetTimer, CloseAppWindow, %waitingTime%
 }
 
@@ -601,9 +622,6 @@ Return
 ; !f::Reload
 
 #If WinActive(WINDOW_TITLE)
-; !f::
-  ; GoSub ShowSettings
-; Return
 !w::
   ShowFindWordFormGui(CONFIG.tmpX, CONFIG.tmpY)
   Send, ^a
@@ -632,6 +650,9 @@ Return
 ~LButton Up::
   SavePosition()
 Return
+; !f::
+	; GoSub ShowSettings
+; Return
 
 #Include %A_ScriptDir%\Lib\BUtil.ahk
 #Include %A_ScriptDir%\Lib\JSON.ahk
