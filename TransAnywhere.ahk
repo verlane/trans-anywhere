@@ -14,7 +14,7 @@ if (!FileExist(SettingsFile)) {
   global SettingsFile := A_ScriptDir . "\Settings-" . A_ComputerName . ".ini" ;path of the settings file
 }
 
-global WINDOW_TITLE := "TransAnywhere v20210722"
+global WINDOW_TITLE := "TransAnywhere v20210725"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -365,22 +365,18 @@ Return
 
 AutoHideTimer:
 	WinGetTitle thisWindowTitle, A
-	if (WINDOW_TITLE == thisWindowTitle) {
+	if (RegExMatch(thisWindowTitle, WINDOW_TITLE) || RegExMatch(thisWindowTitle, FirstDicWindowTitle) || RegExMatch(thisWindowTitle, SecondDicWindowTitle) || RegexMatch(thisWindowTitle, ThirdDicWindowTitle)) {
     AutoHideCount := 0
 	} else {
     AutoHideCount := AutoHideCount + 1
     if (AutoHideCount > 10) {
+			ENGLISH_DIC_APP.CloseAppWindow()
+			JAPANESE_DIC_APP.CloseAppWindow()
+			PAPAGO_APP.CloseAppWindow()
       HideGui()
       SetTimer, AutoHideTimer, Off
     }
   }
-Return
-
-CloseAppWindow:
-  ENGLISH_DIC_APP.CloseAppWindow()
-  JAPANESE_DIC_APP.CloseAppWindow()
-  PAPAGO_APP.CloseAppWindow()
-  SetTimer, CloseAppWindow, Off
 Return
 
 SavePosition() {
@@ -479,8 +475,6 @@ OpenWeb(keyword, language="Auto") {
   } else {
     OpenPapago(keyword)
   }
-  waitingTime := 1000 * 60 * 5 ; minutes
-  SetTimer, CloseAppWindow, %waitingTime%
 }
 
 OpenEngDic(keyword) {
