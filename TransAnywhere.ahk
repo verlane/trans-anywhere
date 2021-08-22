@@ -14,7 +14,7 @@ if (!FileExist(SettingsFile)) {
   global SettingsFile := A_ScriptDir . "\Settings-" . A_ComputerName . ".ini" ;path of the settings file
 }
 
-global WINDOW_TITLE := "TransAnywhere v20210725"
+global WINDOW_TITLE := "TransAnywhere v20210822"
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -302,6 +302,8 @@ TranslateBtn:
   } else {
     if (sl == "ja" && tl == "ko") {
       text := GetDaumJpnDic(keyword)
+    } else if (sl == "en" && tl == "ko") {
+      text := text . NaverDic.enko(keyword)
     } else if (sl == "en" && tl == "ko" || sl == "ko" && tl == "en") {
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)
@@ -655,3 +657,5 @@ Return
 #Include %A_ScriptDir%\Lib\DaumDic.ahk
 #Include %A_ScriptDir%\Lib\IME.ahk
 #Include %A_ScriptDir%\Lib\Class_RichEdit.ahk
+#Include %A_ScriptDir%\Lib\Class_SQLiteDB.ahk
+#Include %A_ScriptDir%\Lib\Class_NaverDic.ahk
