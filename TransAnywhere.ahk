@@ -303,7 +303,46 @@ TranslateBtn:
     if (sl == "ja" && tl == "ko") {
       text := GetDaumJpnDic(keyword)
     } else if (sl == "en" && tl == "ko") {
-      text := text . NaverDic.enko(keyword)
+
+
+
+
+
+DB := new SQLiteDB
+DBFileName := A_ScriptDir . "\Dictionary.db"
+If !FileExist(DBFileName) {
+  if (!DB.OpenDB(DBFileName)) {
+     MsgBox, 16, SQLite Open Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
+  }
+  SQL := "CREATE TABLE entries ( id integer NOT NULL, created_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), updated_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), source_language text NOT NULL COLLATE NOCASE, target_language text NOT NULL COLLATE NOCASE, word text NOT NULL COLLATE NOCASE, definition text COLLATE NOCASE, media1 blob, media2 blob, raw_data text COLLATE NOCASE, PRIMARY KEY (id)); CREATE INDEX source_language_index ON entries ( source_language COLLATE NOCASE ASC); CREATE INDEX target_language_index ON entries ( target_language COLLATE NOCASE ASC);"
+  If !DB.Exec(SQL)
+     MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
+} else {
+  if (!DB.OpenDB(DBFileName)) {
+     MsgBox, 16, SQLite Open Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
+  }
+}
+Table := ""
+SQL := "SELECT definition FROM entries WHERE word = '" . keyword . "';"
+If !DB.GetTable(SQL, Table)
+   MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
+
+if (Table.HasRows) {
+  Row := ""
+  Table.Next(Row)
+  text := text . Row[1]
+} else {
+  dataMap := NaverDic.enko(keyword)
+  text .= dataMap["simpleData"]
+  rawData := StrReplace(dataMap["rawData"], "'", "''")
+  SQL := "INSERT INTO entries(source_language, target_language, word, definition, raw_data) VALUES('en', 'ko', '" . keyword . "', '" . text . "', '" . rawData . "');"
+  If !DB.Exec(SQL)
+     MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
+}
+DB.CloseDB()
+
+
+
     } else if (sl == "en" && tl == "ko" || sl == "ko" && tl == "en") {
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)

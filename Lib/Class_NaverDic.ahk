@@ -2,17 +2,21 @@
   enko(word) {
     r := ""
 
-    PRON_TYPE_MAP := {C: "미국∙영국", A: "미국식", E: "영국식", N: "명사", V: "동사", AJ: "형용사"}
+    ; C:"미국∙영국"
+    PRON_TYPE_MAP := {C: "", A: "미", E: "영", N: "명", V: "동", AJ: "형"}
     searchPage := "https://en.dict.naver.com/api3/enko/search?range=word&query=" . word
     res := GetResponseText(searchPage)
     rJson := JSON.Load(res)
     entryId := rJson.searchResultMap.searchResultListMap.WORD.items[1].entryId
     wordDetailPage := "https://en.dict.naver.com/api/platform/enko/entry?entryId=" . entryId
-    res := GetResponseText(wordDetailPage)
+    rawData := GetResponseText(wordDetailPage)
 
-    rJson := JSON.Load(res)
+    rJson := JSON.Load(rawData)
+
     primary_mean := rJson.entry.primary_mean ; 현재의, 현 …|||있는, 참석한|||선물
     r .= this.appendString(StrReplace(primary_mean, "|||", ", "), "")
+
+    r .= this.appendString(rJson.entry.group.entryCommon.entry_name, "`n`n") ; pres·ent
 
     d := ""
     Loop {
@@ -22,10 +26,10 @@
         break
       }
       if (pron_symbol) {
-        d .= ", " . PRON_TYPE_MAP[pron_type] . " [" . pron_symbol . "]"
+        d .= " " . PRON_TYPE_MAP[pron_type] . "[" . pron_symbol . "]"
       }
     }
-    r .= this.appendString(SubStr(d, 3), "`n`n")
+    r .= this.appendString(SubStr(d, 2), " ")
 
     d := ""
     Loop {
@@ -62,7 +66,7 @@
     }
     r .= this.appendString(d)
 
-    return r
+    return {simpleData: r, rawData: rawData}
   }
 
   appendString(string, prefixCr = "`n") {

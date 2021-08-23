@@ -2,4 +2,4 @@ Settings*.ini
 WordListHistory.txt
 WordListExcluded.txt
 Release
-Db/*
+Dictionary.db
