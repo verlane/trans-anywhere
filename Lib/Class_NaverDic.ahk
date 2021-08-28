@@ -1,6 +1,6 @@
 ﻿class NaverDic {
   enko(word) {
-    r := ""
+    simpleData := ""
 
     ; C:"미국∙영국"
     PRON_TYPE_MAP := {C: "", A: "미", E: "영", N: "명", V: "동", AJ: "형"}
@@ -10,13 +10,12 @@
     entryId := rJson.searchResultMap.searchResultListMap.WORD.items[1].entryId
     wordDetailPage := "https://en.dict.naver.com/api/platform/enko/entry?entryId=" . entryId
     rawData := GetResponseText(wordDetailPage)
-
     rJson := JSON.Load(rawData)
 
     primary_mean := rJson.entry.primary_mean ; 현재의, 현 …|||있는, 참석한|||선물
-    r .= this.appendString(StrReplace(primary_mean, "|||", ", "), "")
+    simpleData .= this.appendString(StrReplace(primary_mean, "|||", ", "), "")
 
-    r .= this.appendString(rJson.entry.group.entryCommon.entry_name, "`n`n") ; pres·ent
+    simpleData .= this.appendString(rJson.entry.group.entryCommon.entry_name, "`n`n") ; pres·ent
 
     d := ""
     Loop {
@@ -29,7 +28,7 @@
         d .= " " . PRON_TYPE_MAP[pron_type] . "[" . pron_symbol . "]"
       }
     }
-    r .= this.appendString(SubStr(d, 2), " ")
+    simpleData .= this.appendString(SubStr(d, 2), " ")
 
     d := ""
     Loop {
@@ -42,7 +41,7 @@
         d .= " - " . conj_content
       }
     }
-    r .= this.appendString(SubStr(d, 4))
+    simpleData .= this.appendString(SubStr(d, 4))
 
     d := ""
     i := 1
@@ -64,9 +63,15 @@
 
       i += 1
     }
-    r .= this.appendString(d)
+    simpleData .= this.appendString(d)
 
-    return {simpleData: r, rawData: rawData}
+    if (rJson.entry.group.prons[1].female_pron_file) {
+      pronFileUrl := rJson.entry.group.prons[1].female_pron_file
+      pronFilePath := A_Temp . "\naver.endic.deleteme.mp3"
+      URLDownloadToFile %pronFileUrl%, %pronFilePath%
+    }
+
+    return {simpleData: simpleData, rawData: rawData, pronFilePath: pronFilePath}
   }
 
   appendString(string, prefixCr = "`n") {
