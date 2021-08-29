@@ -305,10 +305,9 @@ TranslateBtn:
     if (sl == "ja" && tl == "ko") {
       text := GetDaumJpnDic(keyword)
     } else if (sl == "en" && tl == "ko") {
-      entity := cDictionary.SelectEntity(sl, tl, keyword)
-      text .= entity.definition
-      soundFile := entity.media1FileRealPath
-      SoundPlay %soundFile%, wait
+      entry := cDictionary.SelectEntry(sl, tl, keyword)
+      text .= entry.definition
+      SoundPlay % entry.media1FileRealPath ; TODO
     } else if (sl == "en" && tl == "ko" || sl == "ko" && tl == "en") {
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)

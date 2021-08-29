@@ -13,9 +13,9 @@
     rJson := JSON.Load(rawData)
 
     primary_mean := rJson.entry.primary_mean ; 현재의, 현 …|||있는, 참석한|||선물
-    simpleData .= this.appendString(StrReplace(primary_mean, "|||", ", "), "")
+    simpleData .= this.AppendString(StrReplace(primary_mean, "|||", ", "), "")
 
-    simpleData .= this.appendString(rJson.entry.group.entryCommon.entry_name, "`n`n") ; pres·ent
+    simpleData .= this.AppendString(rJson.entry.group.entryCommon.entry_name, "`n`n") ; pres·ent
 
     d := ""
     Loop {
@@ -28,7 +28,7 @@
         d .= " " . PRON_TYPE_MAP[pron_type] . "[" . pron_symbol . "]"
       }
     }
-    simpleData .= this.appendString(SubStr(d, 2), " ")
+    simpleData .= this.AppendString(SubStr(d, 2), " ")
 
     d := ""
     Loop {
@@ -41,48 +41,46 @@
         d .= " - " . conj_content
       }
     }
-    simpleData .= this.appendString(SubStr(d, 4))
+    simpleData .= this.AppendString(SubStr(d, 4))
 
     d := ""
     i := 1
     no := 1
     Loop, % rJson.entry.means.length() {
-      ; d .= this.appendString(rJson.entry.means[i].part.part_ko_name, "`n`n") ; 형용사
-      ; d .= this.appendString(rJson.entry.means[i].specific_part_of_speech) ; 타동사
-      ; d .= this.appendString(rJson.entry.means[i].specific_part_description) ; 명사 앞에만 씀
+      ; d .= this.AppendString(rJson.entry.means[i].part.part_ko_name, "`n`n") ; 형용사
+      ; d .= this.AppendString(rJson.entry.means[i].specific_part_of_speech) ; 타동사
+      ; d .= this.AppendString(rJson.entry.means[i].specific_part_description) ; 명사 앞에만 씀
       if (rJson.entry.means[i].origin_mean) {
         if (no == 1) {
-          d .= this.appendString(no . ". " . rJson.entry.means[i].origin_mean) ; 현재의, 현 …
+          d .= this.AppendString(no . ". " . rJson.entry.means[i].origin_mean) ; 현재의, 현 …
         } else {
-          d .= this.appendString(no . ". " . rJson.entry.means[i].origin_mean, "`n`n") ; 현재의, 현 …
+          d .= this.AppendString(no . ". " . rJson.entry.means[i].origin_mean, "`n`n") ; 현재의, 현 …
         }
-        d .= this.appendString(rJson.entry.means[i].examples[1].origin_example, "`n " . " ") ; in the present situation
-        d .= this.appendString(rJson.entry.means[i].examples[1].translations[1].origin_translation, "`n " . " ") ; 현 상황에서
+        d .= this.AppendString(rJson.entry.means[i].examples[1].origin_example, "`n " . " ") ; in the present situation
+        d .= this.AppendString(rJson.entry.means[i].examples[1].translations[1].origin_translation, "`n " . " ") ; 현 상황에서
         no += 1
       }
 
       i += 1
     }
-    simpleData .= this.appendString(d)
+    simpleData .= this.AppendString(d)
 
-    pronFilePath := GetNaverPron(word)
-
-    ; pronFilePath := ""
-    ; pronFileUrl := rJson.entry.group.prons[1].female_pron_file
-    ; if (pronFileUrl) {
-    ;   pronFilePath := A_Temp . "\tw.naver.endic.deleteme.mp3"
-    ;   URLDownloadToFile %pronFileUrl%, %pronFilePath%
-    ;   Sleep 100
-    ;   FileGetSize, fileSize, %pronFilePath%, K
-    ;   if (fileSize < 1) {
-    ;     pronFilePath := GetNaverPron(word)
-    ;   }
-    ; }
+    pronFilePath := ""
+    pronFileUrl := rJson.entry.group.prons[1].female_pron_file
+    if (pronFileUrl) {
+      pronFilePath := A_Temp . "\tw.naver.endic.deleteme.mp3"
+      URLDownloadToFile %pronFileUrl%, %pronFilePath%
+      Sleep 100
+      FileGetSize, fileSize, %pronFilePath%, K
+      if (fileSize < 1) {
+        pronFilePath := GetNaverPron(word)
+      }
+    }
 
     return {simpleData: simpleData, rawData: rawData, pronFilePath: pronFilePath}
   }
 
-  appendString(string, prefixCr = "`n") {
+  AppendString(string, prefixCr = "`n") {
     string := RegExReplace(Trim(string), "</?[a-zA-Z]+>" , "")
     if (string) {
       return prefixCr . string
