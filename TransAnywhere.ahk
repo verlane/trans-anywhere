@@ -307,7 +307,8 @@ TranslateBtn:
     } else if (sl == "en" && tl == "ko") {
       entity := cDictionary.SelectEntity(sl, tl, keyword)
       text .= entity.definition
-      MsgBox % entity.media1FileRealPath
+      soundFile := entity.media1FileRealPath
+      SoundPlay %soundFile%, wait
     } else if (sl == "en" && tl == "ko" || sl == "ko" && tl == "en") {
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)
@@ -501,11 +502,11 @@ ListenSentence(keyword) {
   isSentence := IsSentence(keyword)
   tmpSoundFile := ""
   if (isEnglish && !isSentence) {
-    tmpSoundFile := GetNaverPron(keyword)
-    SoundPlay %tmpSoundFile%, wait
+    ; tmpSoundFile := GetNaverPron(keyword)
+    ; SoundPlay %tmpSoundFile%, wait
   }
   if (tmpSoundFile == "") {
-    Papago.Listen(keyword)
+    ; Papago.Listen(keyword)
   }
 }
 

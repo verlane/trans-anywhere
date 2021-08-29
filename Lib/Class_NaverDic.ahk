@@ -65,11 +65,19 @@
     }
     simpleData .= this.appendString(d)
 
-    if (rJson.entry.group.prons[1].female_pron_file) {
-      pronFileUrl := rJson.entry.group.prons[1].female_pron_file
-      pronFilePath := A_Temp . "\naver.endic.deleteme.mp3"
-      URLDownloadToFile %pronFileUrl%, %pronFilePath%
-    }
+    pronFilePath := GetNaverPron(word)
+
+    ; pronFilePath := ""
+    ; pronFileUrl := rJson.entry.group.prons[1].female_pron_file
+    ; if (pronFileUrl) {
+    ;   pronFilePath := A_Temp . "\tw.naver.endic.deleteme.mp3"
+    ;   URLDownloadToFile %pronFileUrl%, %pronFilePath%
+    ;   Sleep 100
+    ;   FileGetSize, fileSize, %pronFilePath%, K
+    ;   if (fileSize < 1) {
+    ;     pronFilePath := GetNaverPron(word)
+    ;   }
+    ; }
 
     return {simpleData: simpleData, rawData: rawData, pronFilePath: pronFilePath}
   }

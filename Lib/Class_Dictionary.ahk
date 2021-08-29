@@ -2,7 +2,8 @@
   __New() {
     this.db := new SQLiteDB
     this.dbFileName := A_ScriptDir . "\Dictionary.db"
-    this.pronFileRealPath := A_Temp . "\transanywhere.pron.deleteme.mp3"
+    this.media1FileRealPath := A_Temp . "\tw.pron1.deleteme.mp3"
+    this.media2FileRealPath := A_Temp . "\tw.pron2.deleteme.mp3"
     if (!FileExist(this.dbfileName)) {
       if (!this.db.OpenDB(this.dbfileName)) {
         return this._ShowErrorMessage()
@@ -29,17 +30,20 @@
   _SelectEntity(sl, tl, sqlKeyword) {
     table := ""
     sql := "SELECT id, created_at, updated_at, definition, media1, media2 FROM entries WHERE source_language = '" . sl . "' AND target_language = '" . tl . "' AND word = '" . sqlKeyword . "';"
-    if (!this.db.GetTable(sql, table)) {
+    if (!this.db.Query(sql, table)) {
       return this._ShowErrorMessage()
     }
     if (table.HasRows) {
       row := ""
       table.Next(row)
+      MsgBox % IsObject(row[5])
       return this._RowToEntity(row)
     } 
   }
 
   _SelectOrInsertEntity(sl, tl, keyword) {
+    this.db.Exec("delete from entries") ; TODO delete
+
     sqlKeyword := Format("{:L}", keyword)
     sqlKeyword := StrReplace(sqlKeyword, "'", "''")
 
@@ -56,11 +60,25 @@
       return
     }
     definition := dataMap.simpleData
-    blobArray := this._FileToBlob(dataMap.pronFilePath)
-    sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . definition . "', ?)"
+    sqlDefinition := StrReplace(definition, "'", "''")
+    ; blobArray := this._FileToBlob(dataMap.pronFilePath)
+
+    blob := ""
+    hfile := FileOpen(dataMap.pronFilePath, "r")
+    hfileSize := hfile.RawRead(blob, hfile.Length)
+    MsgBox % blob
+    hfile.Close()
+    blobArray := []
+    if (hfileSize > 0) {
+      blobArray.Insert({Addr: &blob, Size: hfileSize})
+    }
+
+    this.db.Exec("BEGIN TRANSACTION;")
+    sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . sqlDefinition . "', ?)"
     if (!this.db.StoreBLOB(sql, blobArray)) {
       return this._ShowErrorMessage()
     }
+    this.db.Exec("COMMIT TRANSACTION;")
     return this._SelectEntity(sl, tl, sqlKeyword)
   }
 
@@ -71,37 +89,41 @@
       entity.created_at := row[2]
       entity.updated_at := row[3]
       entity.definition := row[4]
-      entity.media1 := row[5]
-      entity.media2 := row[6]
-      if (entity.media1) {
-        entity.media1FileRealPath := this._BlobToFile(entity.media1)
-      }
-      if (entity.media2) {
-        entity.media2FileRealPath := this._BlobToFile(entity.media2)
-      }
+      ; entity.media1 := row[5]
+      ; entity.media2 := row[6]
+
+      ; if (entity.media1) {
+      ;   entity.media1FileRealPath := this._BlobToFile(entity.media1, this.media1FileRealPath)
+      ; }
+      ; if (entity.media2) {
+      ;   entity.media2FileRealPath := this._BlobToFile(entity.media2, this.media2FileRealPath)
+      ; }
     }
     return entity
   }
 
   _FileToBlob(fileRealPath) {
+    blob := ""
     hfile := FileOpen(fileRealPath, "r")
     hfileSize := hfile.RawRead(blob, hfile.Length)
     hfile.Close()
     blobArray := []
-    blobArray.Insert({Addr: &blob, Size: hfileSize})
+    if (hfileSize > 0) {
+      blobArray.Insert({Addr: &blob, Size: hfileSize})
+    }
     return blobArray
   }
 
-  _BlobToFile(mediaBlob) {
-    hfile := FileOpen(this.pronFileRealPath, "w")
+  _BlobToFile(mediaBlob, mediaFileRealPath) {
     hfileSize := mediaBlob.Size
-    if (hfileSize > 0) {
+    if (hfileSize) {
+      hfile := FileOpen(mediaFileRealPath, "w")
       addr := mediaBlob.GetAddress("Blob")
       VarSetCapacity(myBLOBVar, hfileSize)
       DllCall("Kernel32.dll\RtlMoveMemory", "Ptr", &myBLOBVar, "Ptr", addr, "Ptr", hfileSize)
       hfile.RawWrite(&myBLOBVar, hfileSize)
+      return mediaFileRealPath
     }
-    return this.pronFileRealPath
   }
 
   _ShowErrorMessage() {
