@@ -14,7 +14,9 @@ if (!FileExist(SettingsFile)) {
   global SettingsFile := A_ScriptDir . "\Settings-" . A_ComputerName . ".ini" ;path of the settings file
 }
 
-global WINDOW_TITLE := "TransAnywhere v20210822"
+global WINDOW_TITLE := "TransAnywhere v20210829"
+
+global cDictionary := new Dictionary
 
 global SourceLanguage := "Auto"
 global TargetLanguage := "Auto"
@@ -303,68 +305,9 @@ TranslateBtn:
     if (sl == "ja" && tl == "ko") {
       text := GetDaumJpnDic(keyword)
     } else if (sl == "en" && tl == "ko") {
-
-
-
-
-
-DB := new SQLiteDB
-DBFileName := A_ScriptDir . "\Dictionary.db"
-If !FileExist(DBFileName) {
-  if (!DB.OpenDB(DBFileName)) {
-     MsgBox, 16, SQLite Open Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
-  }
-  SQL := "CREATE TABLE entries ( id integer NOT NULL, created_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), updated_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), source_language text NOT NULL COLLATE NOCASE, target_language text NOT NULL COLLATE NOCASE, word text NOT NULL COLLATE NOCASE, definition text COLLATE NOCASE, media1 blob, media2 blob, PRIMARY KEY (id)); CREATE INDEX source_language_index ON entries ( source_language COLLATE NOCASE ASC); CREATE INDEX target_language_index ON entries ( target_language COLLATE NOCASE ASC);"
-  If !DB.Exec(SQL)
-     MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
-} else {
-  if (!DB.OpenDB(DBFileName)) {
-     MsgBox, 16, SQLite Open Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
-  }
-}
-sqlKeyword := Format("{:L}", keyword)
-sqlKeyword := StrReplace(sqlKeyword, "'", "''")
-Table := ""
-SQL := "SELECT definition, media1 FROM entries WHERE source_language = 'en' AND target_language = 'ko' AND word = '" . sqlKeyword . "';"
-If !DB.GetTable(SQL, Table)
-   MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
-
-if (Table.HasRows) {
-  Row := ""
-  Table.Next(Row)
-  text := text . Row[1]
-
-  pronFilePath := A_Temp . "\naver.endic.deleteme.mp3"
-  HFILE := FileOpen(pronFilePath, "w")
-  Size := Row[2].Size
-  Addr := Row[2].GetAddress("Blob")
-  VarSetCapacity(MyBLOBVar, Size) ; added
-  DllCall("Kernel32.dll\RtlMoveMemory", "Ptr", &MyBLOBVar, "Ptr", Addr, "Ptr", Size) ; added
-  HFILE.RawWrite(&MyBLOBVar, Size) ; changed
-  SoundPlay %pronFilePath%
-} else {
-  dataMap := NaverDic.enko(keyword)
-  text .= dataMap["simpleData"]
-  
-  HFILE := FileOpen(dataMap["pronFilePath"], "r")
-  Size := HFILE.RawRead(BLOB, HFILE.Length)
-  HFILE.Close()
-  BlobArray := []
-  BlobArray.Insert({Addr: &BLOB, Size: Size})
-
-  DB.Exec("BEGIN TRANSACTION;")
-  SQL := "INSERT INTO entries(source_language, target_language, word, definition, media1) VALUES('en', 'ko', '" . sqlKeyword . "', '" . text . "', ?)"
-  If !DB.StoreBLOB(SQL, BlobArray)
-     MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
-
-  ; If !DB.Exec(SQL)
-  ;    MsgBox, 16, SQLite Error, % "Msg:`t" . DB.ErrorMsg . "`nCode:`t" . DB.ErrorCode
-  DB.Exec("COMMIT TRANSACTION;")
-}
-DB.CloseDB()
-
-
-
+      entity := cDictionary.SelectEntity(sl, tl, keyword)
+      text .= entity.definition
+      MsgBox % entity.media1FileRealPath
     } else if (sl == "en" && tl == "ko" || sl == "ko" && tl == "en") {
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)
@@ -720,3 +663,4 @@ Return
 #Include %A_ScriptDir%\Lib\Class_RichEdit.ahk
 #Include %A_ScriptDir%\Lib\Class_SQLiteDB.ahk
 #Include %A_ScriptDir%\Lib\Class_NaverDic.ahk
+#Include %A_ScriptDir%\Lib\Class_Dictionary.ahk

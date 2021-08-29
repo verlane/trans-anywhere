@@ -1,5 +1,5 @@
 ﻿class NaverDic {
-  enko(word) {
+  EnglishToKorean(word) {
     simpleData := ""
 
     ; C:"미국∙영국"
@@ -56,8 +56,8 @@
         } else {
           d .= this.appendString(no . ". " . rJson.entry.means[i].origin_mean, "`n`n") ; 현재의, 현 …
         }
-        d .= this.appendString(rJson.entry.means[i].examples[1].origin_example, "`n  ") ; in the present situation
-        d .= this.appendString(rJson.entry.means[i].examples[1].translations[1].origin_translation, "`n  ") ; 현 상황에서
+        d .= this.appendString(rJson.entry.means[i].examples[1].origin_example, "`n " . " ") ; in the present situation
+        d .= this.appendString(rJson.entry.means[i].examples[1].translations[1].origin_translation, "`n " . " ") ; 현 상황에서
         no += 1
       }
 
