@@ -269,8 +269,12 @@ TranslateBtn:
 
   sl := GOOGLE_LANGUAGES[SrcLangComb]
   if (sl == "Auto" || sl == "") {
-    rJson := JSON.Load(GetGoogleTranslation(keyword)) ; check src language
-    sl := rJson.src
+    if (GOOGLE_LANGUAGES[SecondLanguage] == "en" && IsEnglish(keyword)) { ; Avoiding being recognized in other languages
+      sl := "en"
+    } else {
+      rJson := JSON.Load(GetGoogleTranslation(keyword)) ; check src language
+      sl := rJson.src
+    }
   }
 
   tl := GOOGLE_LANGUAGES[TargetLangComb]
@@ -302,13 +306,11 @@ TranslateBtn:
       }
     }
   } else {
-    if (sl == "ja" && tl == "ko") {
-      text := GetDaumJpnDic(keyword)
-    } else if (sl == "en" && tl == "ko") {
+    if (sl == "en" && tl == "ko" || sl == "ja" && tl == "ko") {
       entry := cDictionary.SelectEntry(sl, tl, keyword)
       text .= entry.definition
       SoundPlay % entry.media1FileRealPath ; TODO
-    } else if (sl == "en" && tl == "ko" || sl == "ko" && tl == "en") {
+    } else if (sl == "ko" && tl == "en") {
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)
       }
@@ -317,7 +319,7 @@ TranslateBtn:
       }
       text := text GetNaverTranslation(keyword)
     }
-
+    
     if (sl == "en" && PlayEnglishWordPronunciation) {
       playWord := true
     }
@@ -658,9 +660,9 @@ Return
 #Include %A_ScriptDir%\Lib\JSON.ahk
 #Include %A_ScriptDir%\Lib\OpenChromeAsApp.ahk
 #Include %A_ScriptDir%\Lib\Papago.ahk
-#Include %A_ScriptDir%\Lib\DaumDic.ahk
 #Include %A_ScriptDir%\Lib\IME.ahk
 #Include %A_ScriptDir%\Lib\Class_RichEdit.ahk
 #Include %A_ScriptDir%\Lib\Class_SQLiteDB.ahk
 #Include %A_ScriptDir%\Lib\Class_NaverDic.ahk
+#Include %A_ScriptDir%\Lib\Class_DaumDic.ahk
 #Include %A_ScriptDir%\Lib\Class_Dictionary.ahk

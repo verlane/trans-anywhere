@@ -52,6 +52,8 @@
 
     if (sl == "en" && tl == "ko") {
       dataMap := NaverDic.EnglishToKorean(keyword)
+    } else if (sl == "ja" && tl == "ko") {
+      dataMap := DaumDic.JapaneseToKorean(keyword)
     }
     if (!dataMap) {
       MsgBox Not found Entry
