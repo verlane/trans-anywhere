@@ -25,6 +25,7 @@
 
   SelectEntry(sl, tl, keyword) {
     ; this.db.Exec("delete from entries") ; TODO delete
+    ; this.db.Exec("delete FROM entries where source_language = 'ja';") ; TODO delete
     return this._SelectOrInsertEntry(sl, tl, keyword)
   }
 
@@ -60,11 +61,13 @@
       return
     }
     definition := dataMap.simpleData
-    sqlDefinition := StrReplace(definition, "'", "''")
-    blobArray := this._FileToBlob(dataMap.pronFilePath)
-    sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . sqlDefinition . "', ?)"
-    if (!this.db.StoreBLOB(sql, blobArray)) {
-      return this._ShowErrorMessage()
+    if (definition != "") {
+      sqlDefinition := StrReplace(definition, "'", "''")
+      blobArray := this._FileToBlob(dataMap.pronFilePath)
+      sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . sqlDefinition . "', ?)"
+      if (!this.db.StoreBLOB(sql, blobArray)) {
+        return this._ShowErrorMessage()
+      }
     }
     return this._SelectEntry(sl, tl, sqlKeyword)
   }

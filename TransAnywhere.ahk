@@ -346,10 +346,10 @@ TranslateBtn:
   textArr := StrSplit(text, lowerCaseKeyword)
   for i, v in textArr
   {
-      textsWithStyle.Push(v)
-      if (i != textArr.MaxIndex()) {
-        textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
-      }
+    textsWithStyle.Push(v)
+    if (i != textArr.MaxIndex()) {
+      textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
+    }
   }
   if (IsInfooter) {
     textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
