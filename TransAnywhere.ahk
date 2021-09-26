@@ -429,8 +429,8 @@ ShowFindWordFormGui(x=0, y=0) {
   width := 420
   height := 474
   if (x==0 || y==0 || x < 0 || y < 0 || x > (A_ScreenWidth - width) || y > (A_ScreenHeight - height)) {
-    x := 0
-    y := 0
+    x := 100
+    y := 100
   }
   Gui FindWordForm:Show, x%x% y%y% w%width% h%height%, %WINDOW_TITLE%
   GuiControl, FindWordForm:Focus, SrcEditText
