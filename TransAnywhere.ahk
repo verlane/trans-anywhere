@@ -116,7 +116,7 @@ Gui FindWordForm:Font, s14 Meiryo UI
   Tooltips[hCopySrcBtn] := "Copy (Alt+Y)"
 
   Gui FindWordForm:Add, Button, hwndhSettingBtn gSettingBtn x296 y128 w30 h30, ⚙️
-  Tooltips[hSettingBtn] := "Alt+W to display this form, Ctrl+Enter to start new line.`nAlt+W long press to copy selected text and translate.`nTab or Number key to enter the phrase for AutoComplete."
+  Tooltips[hSettingBtn] := "Alt+W to display this form, Ctrl+Enter to start new line.`nAlt+W long press to copy selected text and translate.`nTab or Number key to enter the phrase for AutoComplete.`nAlt+J or K to scroll page."
   Gui FindWordForm:Add, Button, hwndhOpenWebTargetBtn gOpenWebTargetBtn x326 y128 w30 h30, 📖
   Tooltips[hOpenWebTargetBtn] := "Open (Alt+A)"
   Gui FindWordForm:Add, Button, hwndhListenTargetBtn gListenTargetBtn x356 y128 w30 h30, 🔉
@@ -621,7 +621,7 @@ Return
   }
   KeyWait %A_ThisHotkey%
 Return
-; !f::Reload
+!f::Reload
 
 #If WinActive(WINDOW_TITLE)
 !w::
@@ -648,6 +648,14 @@ Return
 Return
 !d::
   Gosub, CopyTargetBtn
+Return
+!j::
+  pos := targetRE.GetScrollPos()
+  targetRE.SetScrollPos(pos.X, pos.Y + 60)
+Return
+!k::
+  pos := targetRE.GetScrollPos()
+  targetRE.SetScrollPos(pos.X, pos.Y - 60)
 Return
 ~LButton Up::
   SavePosition()
