@@ -1,8 +1,9 @@
 ﻿Class OpenChromeAsApp {
-  __New(winTitleRegex, sendCommand, sendURL) {
+  __New(winTitleRegex, sendCommand, sendURL, profile="") {
     this.winTitleRegex := winTitleRegex
     this.sendCommand := sendCommand
     this.sendURL := sendURL
+    this.profile := profile
   }
 
   RunApp(keyword="") {
@@ -25,7 +26,12 @@
         chromePath := "chrome.exe"
       }
       url := StrReplace(this.sendURL, "[KEYWORD]", this.URLEncode(keyword))
-      Run %chromePath% --app=%url% --app-shell-host-windows-bounds, , UseErrorLevel
+      if (this.profile != "") {
+        profile := this.profile
+        Run %chromePath% --app=%url% --profile-directory="%profile%" --app-shell-host-windows-bounds, , UseErrorLevel
+      } else {
+        Run %chromePath% --app=%url% --app-shell-host-windows-bounds, , UseErrorLevel
+      }
       If ErrorLevel
         Run %url%
     }

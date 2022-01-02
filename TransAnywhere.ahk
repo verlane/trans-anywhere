@@ -621,7 +621,6 @@ Return
   }
   KeyWait %A_ThisHotkey%
 Return
-!f::Reload
 
 #If WinActive(WINDOW_TITLE)
 !w::
