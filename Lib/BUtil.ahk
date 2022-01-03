@@ -160,15 +160,16 @@ GetGoogleTranslation(keyword, sl="auto", tl="ko") {
 GetDaumTranslation(keyword) {
   ; for google https://clients5.google.com/translate_a/t?client=dict-chrome-ex&q=did%20you%20push%20your%20changes%20to%20the%20hotfix%2F33488%20branch%3F&sl=auto&tl=ko
   oHTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-  url := "https://suggest-bar.daum.net/suggest?mod=json&code=utf_in_out&enc=utf&id=language&cate=eng&q=" keyword "&callback=window.suggestInstance.dataModel.forceLoadComplete"
+  url := "https://suggest.dic.daum.net/language/v1/search.json?cate=eng&q=" . keyword . "&callback=window.suggestInstance.dataModel.forceLoadComplete"
   oHTTP.Open("Get", url , False)
   oHTTP.SetRequestHeader("Content-Type", "application/json")
   oHTTP.Send()
   oHTTP.WaitForResponse()
   response := oHTTP.ResponseText
   oHTTP := ""
-  RegExMatch(response, "Oi)""items"" : \[ "".+\|" keyword "\|(.+?)""", SubPat)
+  RegExMatch(response, "Oi)""item"":"".+\|" . keyword . "\|(.+?)""", SubPat)
 
+  OutputDebug % "AHK: " SubPat.value(1)
   Return SubPat.value(1)
 }
 
