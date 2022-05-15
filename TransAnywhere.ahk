@@ -301,6 +301,7 @@ TranslateBtn:
       if (wordArray.MaxIndex() > 1 && StrSplit(wordArray[1], " ").MaxIndex() < 2 && StrSplit(wordArray[2], " ").MaxIndex() < 2) {
         for index, word in wordArray ; Enumeration is the recommended approach in most cases.
         {
+          word := RegExReplace(word, "[`t 　]", "")
           text := text word "`t" GetDaumTranslation(word) "`n"
         }
       }
@@ -309,8 +310,10 @@ TranslateBtn:
     if (sl == "en" && tl == "ko" || sl == "ja" && tl == "ko") {
       entry := cDictionary.SelectEntry(sl, tl, keyword)
       text .= entry.definition
-      SoundPlay % entry.media1FileRealPath ; TODO
-    } else if (sl == "ko" && tl == "en") {
+      if (PlayEnglishWordPronunciation) {
+        SoundPlay % entry.media1FileRealPath ; TODO
+      }
+    } else if (false && sl == "ko" && tl == "en") { ; TODO fixing bug
       if (UseDaumEnglishDictionary) {
         text := GetDaumTranslation(keyword)
       }
@@ -579,6 +582,7 @@ AppendRE(RE, textsWithStyle) {
       wordArray := StrSplit(replacedKeyword, "`n")
       for index, word in wordArray ; Enumeration is the recommended approach in most cases.
       {
+        word := RegExReplace(word, "[`t 　]", "")
         if (word != "" && word != "`n") {
 					text := text word "`t" GetDaumTranslation(word)
 					if (wordArray.MaxIndex() != index) {
