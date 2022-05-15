@@ -10,17 +10,18 @@
     entryId := rJson.searchResultMap.searchResultListMap.WORD.items[1].entryId
     wordDetailPage := "https://en.dict.naver.com/api/platform/enko/entry?entryId=" . entryId
     rawData := GetResponseText(wordDetailPage)
+    OutputDebug % "AHK: " wordDetailPage
     rJson := JSON.Load(rawData)
 
     primary_mean := rJson.entry.primary_mean ; 현재의, 현 …|||있는, 참석한|||선물
     simpleData .= this.AppendString(StrReplace(primary_mean, "|||", ", "), "")
 
-    simpleData .= this.AppendString(rJson.entry.group.entryCommon.entry_name, "`n`n") ; pres·ent
+    simpleData .= this.AppendString(rJson.entry.members[1].show_full_name, "`n`n") ; pres·ent
 
     d := ""
     Loop {
-      pron_type := rJson.entry.group.prons[A_Index].pron_type ; V
-      pron_symbol := rJson.entry.group.prons[A_Index].pron_symbol ; prɪˈzent
+      pron_type := rJson.entry.members[1].prons[A_Index].pron_type ; V
+      pron_symbol := rJson.entry.members[1].prons[A_Index].pron_symbol ; prɪˈzent
       if (!pron_type) {
         break
       }
@@ -66,7 +67,7 @@
     simpleData .= this.AppendString(d)
 
     pronFilePath := ""
-    pronFileUrl := rJson.entry.group.prons[1].female_pron_file
+    pronFileUrl := rJson.entry.members[1].prons[1].female_pron_file
     if (pronFileUrl) {
       pronFilePath := A_Temp . "\tw.naver.endic.deleteme.mp3"
       URLDownloadToFile %pronFileUrl%, %pronFilePath%
