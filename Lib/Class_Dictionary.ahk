@@ -24,7 +24,7 @@
   }
 
   SelectEntry(sl, tl, keyword) {
-    ; this.db.Exec("delete from entries") ; TODO delete
+    this.db.Exec("delete from entries") ; TODO delete
     ; this.db.Exec("delete FROM entries where source_language = 'ja';") ; TODO delete
     return this._SelectOrInsertEntry(sl, tl, keyword)
   }

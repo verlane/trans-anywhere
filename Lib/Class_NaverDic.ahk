@@ -69,12 +69,15 @@
     pronFilePath := ""
     pronFileUrl := rJson.entry.members[1].prons[1].female_pron_file
     if (pronFileUrl) {
+      OutputDebug % "AHK: " pronFileUrl
       pronFilePath := A_Temp . "\tw.naver.endic.deleteme.mp3"
       URLDownloadToFile %pronFileUrl%, %pronFilePath%
       Sleep 100
       FileGetSize, fileSize, %pronFilePath%, K
       if (fileSize < 1) {
-        pronFilePath := GetNaverPron(word)
+        pronFilePath := ""
+        ; TODO
+        ; pronFilePath := GetNaverPron(word)
       }
     }
 
