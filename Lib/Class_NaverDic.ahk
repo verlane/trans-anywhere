@@ -5,11 +5,11 @@
     ; C:"미국∙영국"
     PRON_TYPE_MAP := {C: "", A: "미", E: "영", N: "명", V: "동", AJ: "형"}
     searchPage := "https://en.dict.naver.com/api3/enko/search?range=word&query=" . word
-    res := GetResponseText(searchPage)
+    res := this.GetDicText(searchPage)
     rJson := JSON.Load(res)
     entryId := rJson.searchResultMap.searchResultListMap.WORD.items[1].entryId
     wordDetailPage := "https://en.dict.naver.com/api/platform/enko/entry?entryId=" . entryId
-    rawData := GetResponseText(wordDetailPage)
+    rawData := this.GetDicText(wordDetailPage)
     OutputDebug % "AHK: " wordDetailPage
     rJson := JSON.Load(rawData)
 
@@ -90,5 +90,13 @@
       return prefixCr . string
     }
     return ""
+  }
+
+  GetDicText(url) {
+    tempFile := A_Temp . "\tw.naver.endic.deleteme.txt"
+    RunWait, curl "%url%" -H "referer: https://en.dict.naver.com/" -o %tempFile%, , Hide
+    FileEncoding, UTF-8
+    FileRead, inputfile, %tempFile%
+    Return inputfile
   }
 }
