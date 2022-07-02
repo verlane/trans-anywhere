@@ -47,7 +47,7 @@
     sqlKeyword := StrReplace(sqlKeyword, "'", "''")
 
     entry := this._SelectEntry(sl, tl, sqlKeyword)
-    if (entry) {
+    if (entry && entry.definition != "") {
       return entry
     } 
 
@@ -64,7 +64,11 @@
     if (definition != "") {
       sqlDefinition := StrReplace(definition, "'", "''")
       blobArray := this._FileToBlob(dataMap.pronFilePath)
-      sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . sqlDefinition . "', ?)"
+      if (entry) { ; Update
+        sql := "UPDATE entries SET definition = '" . sqlDefinition . "', media1  = ? WHERE source_language = '" . sl . "' AND target_language = '" . tl . "' AND word = '" . sqlKeyword . "'"
+      } else { ; Insert
+        sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . sqlDefinition . "', ?)"
+      }
       if (!this.db.StoreBLOB(sql, blobArray)) {
         return this._ShowErrorMessage()
       }

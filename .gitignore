@@ -2,5 +2,5 @@ Settings*.ini
 WordListHistory.txt
 WordListExcluded.txt
 Release
-Dictionary.db
+*.db
 .idea
