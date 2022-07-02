@@ -29,15 +29,33 @@
     return this._SelectOrInsertEntry(sl, tl, keyword)
   }
 
-  _SelectEntry(sl, tl, sqlKeyword) {
-    table := ""
-    sql := "SELECT id, created_at, updated_at, definition, media1, media2 FROM entries WHERE source_language = '" . sl . "' AND target_language = '" . tl . "' AND word = '" . sqlKeyword . "';"
-    if (!this.db.Query(sql, table)) {
+  UpdateEntries(id = 106232, limit = 10) {
+    recordset := ""
+    sql := "SELECT id, created_at, updated_at, word, definition, media1, media2 FROM entries WHERE id <= " . id . " AND (definition IS NULL OR definition = '') ORDER BY id DESC LIMIT " . limit
+    if (!this.db.Query(sql, recordset)) {
       return this._ShowErrorMessage()
     }
-    if (table.HasRows) {
+    row := ""
+    while (recordset.HasRows && recordset.Next(row)) {
+      entry := this._RowToEntry(row)
+      if (entry.word) {
+        OutputDebug % "AHK: " . entry.word . "   / " . entry.id
+        this._SelectOrInsertEntry("en", "ko", entry.word)
+      } else {
+        break ; is there HasNext()?
+      }
+    }
+  }
+
+  _SelectEntry(sl, tl, sqlKeyword, usingGoogle = false) {
+    recordset := ""
+    sql := "SELECT id, created_at, updated_at, word, definition, media1, media2 FROM entries WHERE source_language = '" . sl . "' AND target_language = '" . tl . "' AND word = '" . sqlKeyword . "';"
+    if (!this.db.Query(sql, recordset)) {
+      return this._ShowErrorMessage()
+    }
+    if (recordset.HasRows) {
       row := ""
-      table.Next(row)
+      recordset.Next(row)
       return this._RowToEntry(row)
     } 
   }
@@ -60,12 +78,14 @@
       MsgBox Not found Entry
       return
     }
+
     definition := dataMap.simpleData
     if (definition != "") {
-      sqlDefinition := StrReplace(definition, "'", "''")
       blobArray := this._FileToBlob(dataMap.pronFilePath)
+      sqlDefinition := StrReplace(definition, "'", "''")
       if (entry) { ; Update
-        sql := "UPDATE entries SET definition = '" . sqlDefinition . "', media1  = ? WHERE source_language = '" . sl . "' AND target_language = '" . tl . "' AND word = '" . sqlKeyword . "'"
+        FormatTime, updatedAt, %A_Now%, "yyyy/MM/dd HH:mm:ss"
+        sql := "UPDATE entries SET updated_at = '" . updatedAt . "', definition = '" . sqlDefinition . "', media1  = ? WHERE source_language = '" . sl . "' AND target_language = '" . tl . "' AND word = '" . sqlKeyword . "'"
       } else { ; Insert
         sql := "INSERT INTO entries (source_language, target_language, word, definition, media1) VALUES ('" . sl . "', '" . tl . "', '" . sqlKeyword . "', '" . sqlDefinition . "', ?)"
       }
@@ -82,9 +102,10 @@
       entry.id := row[1]
       entry.created_at := row[2]
       entry.updated_at := row[3]
-      entry.definition := row[4]
-      entry.media1 := row[5]
-      entry.media2 := row[6]
+      entry.word := row[4]
+      entry.definition := row[5]
+      entry.media1 := row[6]
+      entry.media2 := row[7]
       if (entry.media1) {
         entry.media1FileRealPath := this._BlobToFile(entry.media1, this.media1FileRealPath)
       }

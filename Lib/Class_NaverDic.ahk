@@ -10,7 +10,6 @@
     entryId := rJson.searchResultMap.searchResultListMap.WORD.items[1].entryId
     wordDetailPage := "https://en.dict.naver.com/api/platform/enko/entry?entryId=" . entryId
     rawData := this.GetDicText(wordDetailPage)
-    OutputDebug % "AHK: " wordDetailPage
     rJson := JSON.Load(rawData)
 
     primary_mean := rJson.entry.primary_mean ; 현재의, 현 …|||있는, 참석한|||선물
@@ -69,7 +68,6 @@
     pronFilePath := ""
     pronFileUrl := rJson.entry.members[1].prons[1].female_pron_file
     if (pronFileUrl) {
-      OutputDebug % "AHK: " pronFileUrl
       pronFilePath := A_Temp . "\tw.naver.endic.deleteme.mp3"
       URLDownloadToFile %pronFileUrl%, %pronFilePath%
       Sleep 100

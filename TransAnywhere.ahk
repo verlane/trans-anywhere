@@ -666,6 +666,9 @@ Return
 !f::
   Reload
 Return
+!r::
+  cDictionary.UpdateEntries()
+Return
 
 #Include %A_ScriptDir%\Lib\BUtil.ahk
 #Include %A_ScriptDir%\Lib\JSON.ahk
