@@ -14,7 +14,7 @@ if (!FileExist(SettingsFile)) {
   global SettingsFile := A_ScriptDir . "\Settings-" . A_ComputerName . ".ini" ;path of the settings file
 }
 
-global WINDOW_TITLE := "TransAnywhere v20220103"
+global WINDOW_TITLE := "TransAnywhere v20220704"
 
 global cDictionary := new Dictionary
 
@@ -666,9 +666,9 @@ Return
 !f::
   Reload
 Return
-!r::
-  cDictionary.UpdateEntries()
-Return
+; !r::
+;   cDictionary.UpdateEntries()
+; Return
 
 #Include %A_ScriptDir%\Lib\BUtil.ahk
 #Include %A_ScriptDir%\Lib\JSON.ahk

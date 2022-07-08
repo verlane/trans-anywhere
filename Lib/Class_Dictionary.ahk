@@ -8,7 +8,7 @@
       if (!this.db.OpenDB(this.dbfileName)) {
         return this._ShowErrorMessage()
       }
-      SQL := "CREATE TABLE entries (id integer NOT NULL, created_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), updated_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), source_language text NOT NULL COLLATE NOCASE, target_language text NOT NULL COLLATE NOCASE, word text NOT NULL COLLATE NOCASE, definition text COLLATE NOCASE, media1 blob, media2 blob, PRIMARY KEY (id)); CREATE INDEX source_language_index ON entries (source_language COLLATE NOCASE ASC); CREATE INDEX target_language_index ON entries (target_language COLLATE NOCASE ASC);"
+      SQL := "CREATE TABLE entries (id integer NOT NULL, created_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), updated_at text NOT NULL DEFAULT (DATETIME('now', 'localtime')), source_language text NOT NULL COLLATE NOCASE, target_language text NOT NULL COLLATE NOCASE, word text NOT NULL COLLATE NOCASE, definition text COLLATE NOCASE, media1 blob, media2 blob, PRIMARY KEY (id)); CREATE INDEX source_language_index ON entries (source_language COLLATE NOCASE ASC); CREATE INDEX target_language_index ON entries (target_language COLLATE NOCASE ASC);CREATE INDEX word_index ON entries (word COLLATE NOCASE ASC);"
       if (!this.db.Exec(SQL)) {
         return this._ShowErrorMessage()
       }
@@ -29,18 +29,20 @@
     return this._SelectOrInsertEntry(sl, tl, keyword)
   }
 
-  UpdateEntries(id = 106232, limit = 10) {
+  UpdateEntries(id = 41000, limit = 70000) {
     recordset := ""
     sql := "SELECT id, created_at, updated_at, word, definition, media1, media2 FROM entries WHERE id <= " . id . " AND (definition IS NULL OR definition = '') ORDER BY id DESC LIMIT " . limit
     if (!this.db.Query(sql, recordset)) {
       return this._ShowErrorMessage()
     }
     row := ""
+    i := 0
     while (recordset.HasRows && recordset.Next(row)) {
+      i += 1
       entry := this._RowToEntry(row)
       if (entry.word) {
-        OutputDebug % "AHK: " . entry.word . "   / " . entry.id
         this._SelectOrInsertEntry("en", "ko", entry.word)
+        OutputDebug % "AHK: " i . " / " . entry.id . " / " . entry.word
       } else {
         break ; is there HasNext()?
       }
