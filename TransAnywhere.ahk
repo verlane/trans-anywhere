@@ -339,9 +339,8 @@ TranslateBtn:
   needleAndColorList := []
   lowerCaseKeyword := Format("{:L}", keyword) ; TEST -> test
   firstUpperCaseKeyword := RegExReplace(keyword, "^(.)", "$u1") ; test -> Test
-
+  needleAndColorList.Push({needle: lowerCaseKeyword, color: palette.rose})
   needleAndColorList.Push({needle: firstUpperCaseKeyword, color: palette.rose})
-
   isMatched := RegExMatch(text, "Oi)([a-z]+) - ([a-z]+) - ([a-z]+)", SubPat)
   if (isMatched) {
     needleAndColorList.Push({needle: SubPat.value(1), color: palette.blue})
@@ -349,9 +348,10 @@ TranslateBtn:
     needleAndColorList.Push({needle: SubPat.value(3), color: palette.green})
   }
 
+  needleAndColorList := QuickSort_Alnum(needleAndColorList)
 
   targetRE.SetText("")
-  textsWithStyle := HighlightTextArray(text, lowerCaseKeyword, palette.rose, needleAndColorList)
+  textsWithStyle := HighlightTextArray(text, needleAndColorList[1].needle, needleAndColorList[1].color, SliceArray(needleAndColorList, 2))
 
   AppendRE(targetRE, textsWithStyle)
 
@@ -383,6 +383,40 @@ AutoHideTimer:
     }
   }
 Return
+
+QuickSort_Alnum(original_object) {
+      ; Index values do NOT need to be contiguous
+      ; For quasi-sorted arrays, performance degrades as we always pop
+      
+      ; IMPORTANT: Custom Sorts (e.g. by length of string, by third subarray element etc.)
+      ;    Rather than passing a sort function, to speed things up, it's easy enough
+      ;    to make a different QuickSort function for each kind of sort
+      ;    => TO MAKE A NEW QUICKSORT, COPY AND EDIT THE THREE LINES COMMENTED BELOW
+      to_sort := original_object.Clone() ; popping will deplete the original array
+		if (to_sort.Count() <= 1) {
+		   return to_sort
+		}
+
+	  pivot := to_sort.Pop()
+		less_than_pivot := []
+		more_than_pivot := []
+		for i, to_stash in to_sort {
+		   ; LINE-TO-EDIT #1 for Custom Sort (only the comparison condition)
+		   if (StrLen(to_stash["needle"]) > StrLen(pivot["needle"])) {
+		      less_than_pivot.Push(to_stash)
+		   }
+		   else {
+		      more_than_pivot.Push(to_stash)
+		   }
+		}
+		; LINE-TO-EDIT #2 for Custom Sort (just the function name: we recurse)
+		sort_builder := QuickSort_Alnum(less_than_pivot)
+		sort_builder.Push(pivot)
+		; LINE-TO-EDIT #3 for Custom Sort (just the function name: we recurse)
+		sorted_above := QuickSort_Alnum(more_than_pivot)
+		sort_builder.Push(sorted_above*)
+		return sort_builder
+}
 
 HighlightTextArray(srcText, needleText, color, needleAndColorList = "") {
   array := []
