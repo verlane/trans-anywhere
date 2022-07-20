@@ -137,6 +137,7 @@ if (!RunAsHiddenWindow) {
 ; }
 
 #Include %A_ScriptDir%\Lib\AutoComplete.ahk
+#Include *i <Lib_1>
 
 FindWordFormGuiEscape:
 FindWordFormGuiClose:
@@ -335,31 +336,13 @@ TranslateBtn:
     text := GetTargetText(GetGoogleTranslation(keyword, sl, tl))
   }
 
-	; text := RegExReplace(text, "\r\n", "\r")
+  lowerCaseKeyword := Format("{:L}", keyword) ; TEST -> test
+  firstUpperCaseKeyword := RegExReplace(keyword, "^(.)", "$u1") ; test -> Test
 
-  lowerCaseKeyword := Format("{:L}", keyword)
-  IsInHeader := RegExMatch(text, "^" . lowerCaseKeyword)
-  IsInfooter := RegExMatch(text, lowerCaseKeyword . "$")
   targetRE.SetText("")
-  textsWithStyle := []
-  if (IsInHeader) {
-    textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
-    text := RegExReplace(text, "^" . lowerCaseKeyword, "")
-  }
-  textArr := StrSplit(text, lowerCaseKeyword)
-  for i, v in textArr
-  {
-    textsWithStyle.Push(v)
-    if (i != textArr.MaxIndex()) {
-      textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
-    }
-  }
-  if (IsInfooter) {
-    textsWithStyle.Push([lowerCaseKeyword, palette.rose, True])
-  }
-  AppendRE(targetRE, textsWithStyle)
+  textsWithStyle := HighlightTextArray(text, palette.rose, lowerCaseKeyword, firstUpperCaseKeyword)
 
-  ; GuiControl, FindWordForm:Text, TargetEditText, %text%
+  AppendRE(targetRE, textsWithStyle)
 
   if (playWord) {
     ListenSentence(keyword)
@@ -389,6 +372,34 @@ AutoHideTimer:
     }
   }
 Return
+
+HighlightTextArray(srcText, color, needleText, needleText2 = "") {
+  array := []
+  isInHeader := RegExMatch(srcText, "^" . needleText)
+  isInfooter := RegExMatch(srcText, needleText . "$")
+  array := []
+  if (isInHeader) {
+    array.Push([needleText, color, True])
+    srcText := RegExReplace(srcText, "^" . needleText, "")
+  }
+  textArr := StrSplit(srcText, needleText)
+  for i, v in textArr
+  {
+    if (needleText2 != "") {
+      array2 := HighlightTextArray(v, color, needleText2)
+      array.Push(array2*)
+    } else {
+      array.Push(v)
+    }
+    if (i != textArr.MaxIndex()) {
+      array.Push([needleText, color, True])
+    }
+  }
+  if (isInfooter) {
+    array.Push([needleText, color, True])
+  }
+  return array
+}
 
 SavePosition() {
   WinGetPos, x, y, width, height
