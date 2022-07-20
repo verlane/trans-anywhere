@@ -98,7 +98,7 @@ Gui FindWordForm:Font, s10, Meiryo UI
   ; targetRE.SetOptions(["READONLY"], "Set") ; to avoid a bug not scrolling
   targetRE.WordWrap(True)
   targetRE.SetDefaultFont({"Name": "Meiryo UI", "Color": 0x000000, "Size": 10})
-  palette := {"rose": 0xEE3158, "red": 0xFF6188, "orange": 0xFC9867, "yellow": 0xFFD866, "green": 0xA9DC76, "blue": 0x78DCE8, "purple": 0xAB9DF2}
+  palette := {"rose": 0xEE3158, "red": 0xFF6188, "orange": 0xB44C00, "yellow": 0xFFD866, "green": 0x01570B, "blue": 0x0000A0, "purple": 0xAB9DF2}
 Gui FindWordForm:Font
 
 Gui FindWordForm:Font, s14 Meiryo UI
@@ -336,11 +336,22 @@ TranslateBtn:
     text := GetTargetText(GetGoogleTranslation(keyword, sl, tl))
   }
 
+  needleAndColorList := []
   lowerCaseKeyword := Format("{:L}", keyword) ; TEST -> test
   firstUpperCaseKeyword := RegExReplace(keyword, "^(.)", "$u1") ; test -> Test
 
+  needleAndColorList.Push({needle: firstUpperCaseKeyword, color: palette.rose})
+
+  isMatched := RegExMatch(text, "Oi)([a-z]+) - ([a-z]+) - ([a-z]+)", SubPat)
+  if (isMatched) {
+    needleAndColorList.Push({needle: SubPat.value(1), color: palette.blue})
+    needleAndColorList.Push({needle: SubPat.value(2), color: palette.orange})
+    needleAndColorList.Push({needle: SubPat.value(3), color: palette.green})
+  }
+
+
   targetRE.SetText("")
-  textsWithStyle := HighlightTextArray(text, palette.rose, lowerCaseKeyword, firstUpperCaseKeyword)
+  textsWithStyle := HighlightTextArray(text, lowerCaseKeyword, palette.rose, needleAndColorList)
 
   AppendRE(targetRE, textsWithStyle)
 
@@ -373,7 +384,7 @@ AutoHideTimer:
   }
 Return
 
-HighlightTextArray(srcText, color, needleText, needleText2 = "") {
+HighlightTextArray(srcText, needleText, color, needleAndColorList = "") {
   array := []
   isInHeader := RegExMatch(srcText, "^" . needleText)
   isInfooter := RegExMatch(srcText, needleText . "$")
@@ -385,8 +396,8 @@ HighlightTextArray(srcText, color, needleText, needleText2 = "") {
   textArr := StrSplit(srcText, needleText)
   for i, v in textArr
   {
-    if (needleText2 != "") {
-      array2 := HighlightTextArray(v, color, needleText2)
+    if (needleAndColorList.MaxIndex() > 0) {
+      array2 := HighlightTextArray(v, needleAndColorList[1]["needle"], needleAndColorList[1]["color"], SliceArray(needleAndColorList, 2))
       array.Push(array2*)
     } else {
       array.Push(v)
@@ -399,6 +410,23 @@ HighlightTextArray(srcText, color, needleText, needleText2 = "") {
     array.Push([needleText, color, True])
   }
   return array
+}
+
+SliceArray(arr, start, end = "") {
+	len := arr.Length()
+	if(end == "" || end > len)
+		end := len
+	if(start<arr.MinIndex())
+		start := arr.MinIndex()
+	if(len<=0 || len < start || start > end)
+		return []
+		
+	ret := []
+	start -= 1
+	c := end - start
+	loop %c%
+		ret.push(arr[A_Index + start])
+	return ret
 }
 
 SavePosition() {
