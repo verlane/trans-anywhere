@@ -14,7 +14,7 @@ if (!FileExist(SettingsFile)) {
   global SettingsFile := A_ScriptDir . "\Settings-" . A_ComputerName . ".ini" ;path of the settings file
 }
 
-global WINDOW_TITLE := "TransAnywhere v20220704"
+global WINDOW_TITLE := "TransAnywhere v20230717"
 
 global cDictionary := new Dictionary
 
