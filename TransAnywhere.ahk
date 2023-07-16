@@ -86,7 +86,7 @@ OnMessage(0x200, "WM_MOUSEMOVE")
 OnMessage(0x2a3, "WM_MOUSELEAVE")
 Gui FindWordForm:+hWndhMainWnd +Owner -MaximizeBox -MinimizeBox
 Gui FindWordForm:Color, White
-Gui FindWordForm:Font, s10, Meiryo UI
+Gui FindWordForm:Font, s10, Yu Gothic UI
   srcComboxText := GetComboboxText(GOOGLE_LANGUAGES, SourceLanguage, "Auto||")
   Gui FindWordForm:Add, DDL, vSrcLangComb x4 y4 w120, %srcComboxText%
   Gui FindWordForm:Add, Edit, vSrcEditText x4 y32 w412 h90 +Multi -WantReturn
@@ -97,11 +97,11 @@ Gui FindWordForm:Font, s10, Meiryo UI
   targetRE.SetBkgndColor(0xFFFFFF)
   ; targetRE.SetOptions(["READONLY"], "Set") ; to avoid a bug not scrolling
   targetRE.WordWrap(True)
-  targetRE.SetDefaultFont({"Name": "Meiryo UI", "Color": 0x000000, "Size": 10})
+  targetRE.SetDefaultFont({"Name": "Yu Gothic UI", "Color": 0x000000, "Size": 10})
   palette := {"rose": 0xEE3158, "red": 0xFF6188, "orange": 0xB44C00, "yellow": 0xFFD866, "green": 0x01570B, "blue": 0x0000A0, "purple": 0xAB9DF2}
 Gui FindWordForm:Font
 
-Gui FindWordForm:Font, s14 Meiryo UI
+Gui FindWordForm:Font, s14 Yu Gothic UI 
   Gui FindWordForm:Add, Button, hwndhTranslateBtn gTranslateBtn x236 y0 w30 h30 Default, 🌏
   Tooltips[hTranslateBtn] := "Translate (Enter)"
   Gui FindWordForm:Add, Button, hwndhSwitchBtn gSwitchBtn x266 y0 w30 h30, 🔁
@@ -185,9 +185,9 @@ Return
 SwitchBtn:
   Gui FindWordForm:Submit, NoHide
   GuiControlGet, SrcEditText
-  targetREText := targetRE.GetTextRN()
+  targetREText := RegExReplace(targetRE.GetTextRN(), "`n+$", "")
   GuiControl, FindWordForm:Text, SrcEditText, %targetREText%
-  targetRE.setText(SrcEditText)
+  targetRE.setText(RegExReplace(SrcEditText, "`n+$", ""))
 
   GuiControlGet, SrcLangComb
   GuiControlGet, TargetLangComb

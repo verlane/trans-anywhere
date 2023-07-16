@@ -3,4 +3,5 @@ WordListHistory.txt
 WordListExcluded.txt
 Release
 *.db
+*.zip
 .idea
