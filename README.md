@@ -6,7 +6,7 @@ TransAnywhere uses Naver Eng/Kor Dictionary, Daum Eng/Kor Dictionary, Daum Jap/K
 
 Some antivirus recognizes TransAnywhere as a virus, but there is no virus. Add TransAnywhere to the exclusions.
 
-![Screenshot](Screenshot.png)
+<img src="https://github.com/verlane/trans-anywhere/assets/3623209/054df0da-56b1-47d2-9e3b-d7ce60ce0aaa" width="420">
 
 Using
 -----
