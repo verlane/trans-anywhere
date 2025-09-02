@@ -641,36 +641,36 @@ AppendRE(RE, textsWithStyle) {
 	; }
 }
 
-!s::
-  KeyWait s, T0.3
-  if (ErrorLevel) { ; by long press
-    Clipboard := ""
-    Send, ^x
-    ClipWait, 3
-    if (!ErrorLevel) {
-      text := ""
-      keyword := Clipboard
-      replacedKeyword := StrReplace(Clipboard, " `n", "`n")
-      replacedKeyword := StrReplace(replacedKeyword, "`r", "")
-      wordArray := StrSplit(replacedKeyword, "`n")
-      for index, word in wordArray ; Enumeration is the recommended approach in most cases.
-      {
-        word := RegExReplace(word, "[`t 　]", "")
-        if (word != "" && word != "`n") {
-					text := text word "`t" GetDaumTranslation(word)
-					if (wordArray.MaxIndex() != index) {
-						text := text . "`n"
-					}
-        }
-      }
-      Clipboard := text
-      Send ^v
-    }
-  } else {
-    Send !s
-  }
-  KeyWait %A_ThisHotkey%
-Return
+; !s::
+;   KeyWait s, T0.3
+;   if (ErrorLevel) { ; by long press
+;     Clipboard := ""
+;     Send, ^x
+;     ClipWait, 3
+;     if (!ErrorLevel) {
+;       text := ""
+;       keyword := Clipboard
+;       replacedKeyword := StrReplace(Clipboard, " `n", "`n")
+;       replacedKeyword := StrReplace(replacedKeyword, "`r", "")
+;       wordArray := StrSplit(replacedKeyword, "`n")
+;       for index, word in wordArray ; Enumeration is the recommended approach in most cases.
+;       {
+;         word := RegExReplace(word, "[`t 　]", "")
+;         if (word != "" && word != "`n") {
+; 					text := text word "`t" GetDaumTranslation(word)
+; 					if (wordArray.MaxIndex() != index) {
+; 						text := text . "`n"
+; 					}
+;         }
+;       }
+;       Clipboard := text
+;       Send ^v
+;     }
+;   } else {
+;     Send !s
+;   }
+;   KeyWait %A_ThisHotkey%
+; Return
 !w::
   KeyWait w, T0.3
   if (ErrorLevel) { ; by long press
